@@ -1,0 +1,159 @@
+name: Generate and Update README.MD File List
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  schedule:
+    - cron: '0 0 */14 * *' # Run every 2 weeks
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: List files in the repository
+        run: |
+          ls -al
+
+      - name: Verify README.md exists
+        run: |
+          if [ ! -f README.md ]; then
+            echo "README.md not found!"
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+        with:
+          python-version: "3.x"
+
+      - name: Create src directory
+        run: mkdir -p src
+
+      - name: Download generate_file_list.py
+        run: |
+          curl -L -o src/generate_file_list.py https://github.com/Nick2bad4u/generate-repo-file-list/raw/refs/heads/main/src/generate_file_list.py
+          chmod +x src/generate_file_list.py
+
+      - name: Install dependencies (if any)
+        run: |
+          python -m pip install tqdm==4.66.4
+          # Add any dependencies your script needs here
+          # For example: pip install requests
+
+      - name: Run Generate Repo File List Action
+        uses: nick2bad4u/generate-repo-file-list@6de1b736f4684d3a8a4260f0bc3aea4ce1493f3f # main
+        with:
+          log-level: "INFO"
+          directory: "."
+          repo-url: "https://github.com/${{ github.repository }}"
+          fallback-repo-url: "https://github.com/${{ github.repository }}"
+          output-format: "markdown"
+          output-file: "file_list.md"
+          color-source: "random"
+          color-list: "#FF0000 #00FF00 #0000FF #FFFF00 #FF00FF #00FFFF"
+          color-range-start: "#000000"
+          color-range-end: "#FFFFFF"
+          max-attempts: "1000000"
+          exclude-blacks-threshold: "#222222"
+          exclude-dark-colors: "false"
+          exclude-bright-colors: "false"
+          exclude-blacks: "false"
+          ensure-readable-colors: "true"
+          repo-root-header: "Repo Root"
+          header-text: "## File List"
+          intro-text: "# Here is a list of files included in this repository:"
+          dark-color-luminance-threshold: "128"
+          bright-color-luminance-threshold: "200"
+          chunk-size: "40"
+          viewport-mobile: "768"
+          viewport-tablet: "1024"
+          viewport-small-desktop: "1440"
+          root-margin-large-desktop: "0px 0px 400px 0px"
+          root-margin-small-desktop: "0px 0px 300px 0px"
+          root-margin-tablet: "0px 0px 200px 0px"
+          root-margin-mobile: "0px 0px 100px 0px"
+
+      - name: Update README.md
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+                 const readmePath = './README.md';
+                 let fileListPath = './file_list.md';
+                 const fileListHTMLPath = './file_list.html';
+
+                 // Determine which file to use based on which is newer
+                 if (fs.existsSync(fileListPath) && fs.existsSync(fileListHTMLPath)) {
+              const fileListStat = fs.statSync(fileListPath);
+              const fileListHTMLStat = fs.statSync(fileListHTMLPath);
+
+              if (fileListHTMLStat.mtime > fileListStat.mtime) {
+                fileListPath = fileListHTMLPath;
+                console.log('Using file_list.html because it is newer than file_list.md');
+              } else {
+                console.log('Using file_list.md because it is newer than file_list.html');
+              }
+                 } else if (fs.existsSync(fileListHTMLPath)) {
+              fileListPath = fileListHTMLPath;
+              console.log('Using file_list.html because file_list.md does not exist');
+                 } else if (!fs.existsSync(fileListPath)) {
+              console.warn('Neither file_list.md nor file_list.html exist.  Aborting README.md update.');
+              return;
+                 }
+
+            try {
+              // Check if README.md exists, if not create it
+              if (!fs.existsSync(readmePath)) {
+              console.warn('README.md not found. Creating a new README.md file.');
+              fs.writeFileSync(readmePath, '# Project Title\n\n<!-- FILE_LIST_START -->\n<!-- FILE_LIST_END -->\n');
+              }
+
+              // Read the contents of README.md
+              let readmeContent = fs.readFileSync(readmePath, 'utf8');
+
+              // Read the contents of file_list.md
+              const fileListContent = fs.readFileSync(fileListPath, 'utf8');
+
+              // Define start and end markers for the file list section
+              const startMarker = '<!-- FILE_LIST_START -->';
+              const endMarker = '<!-- FILE_LIST_END -->';
+
+              // Find the start and end positions of the file list section
+              const startPosition = readmeContent.indexOf(startMarker);
+              const endPosition = readmeContent.indexOf(endMarker);
+
+              // Check if the markers exist in the README.md file
+              if (startPosition === -1 || endPosition === -1) {
+                console.warn('Start or end markers not found in README.md.  The action will add the markers with the file list to the end of the file.');
+                readmeContent += `\n${startMarker}\n${fileListContent}\n${endMarker}\n`;
+              } else {
+                // Replace the existing file list with the new content
+                readmeContent = readmeContent.substring(0, startPosition + startMarker.length) +
+                  '\n' + fileListContent + '\n' +
+                  readmeContent.substring(endPosition);
+              }
+
+              // Write the updated content back to README.md
+              fs.writeFileSync(readmePath, readmeContent);
+              console.log('Successfully updated README.md');
+            } catch (error) {
+              console.error('Failed to update README.md:', error);
+            }
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
+        with:
+          commit_message: "Update file list in README.md automatically with GitHub Action"
+          file_pattern: "README.md file_list.md file_list.html"
