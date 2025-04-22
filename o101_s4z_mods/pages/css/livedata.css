@@ -1,0 +1,52 @@
+div.livedata-group {
+    display: flex;
+    flex-direction: row;
+    font-size: 70%;
+    zoom: var(--zoom);
+}
+
+div.livedata-wrapper {
+    padding-right: 2.5%;
+}
+
+div.livedata {
+    background-image: linear-gradient(135deg, hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/var(--final-bg-opacity)), hsl(var(--theme-bg2-hue) var(--theme-bg2-sat) var(--theme-bg2-light)/var(--final-bg-opacity)));
+    border-radius: var(--radius);
+    vertical-align: bottom;
+    height: 100%;
+    font-variant-numeric: tabular-nums !important;
+}
+div.livedata .value {
+    font-weight: 800;
+    text-align: right;
+    padding-right: 7%;
+    line-height:1.4;
+}
+div .livedata abbr {
+    font-size: 40%;
+    padding-left: 2px;
+}
+
+#gear {
+    width: 3.25ch;
+}
+#cadence {
+    width: 3.75ch;
+}
+#speed, #heartrate, #grade {
+    width: 4.25ch;
+}
+#draft, #power, #powerwkg {
+    width: 4.5ch;
+}
+abbr.cadence, abbr.heartrate {
+    position: relative;
+}
+abbr.cadence::after{
+    content: "l";
+    position: absolute;
+    zoom: 0.9;
+    left: 62%;
+    top: 84%;
+    transform: translateY(-75%) rotate(-45deg);
+}

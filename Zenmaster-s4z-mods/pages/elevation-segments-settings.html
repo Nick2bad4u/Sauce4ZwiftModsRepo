@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html class="settings-page" tabindex="0" data-settings-key="elevation-segments-settings-v1">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <!--
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+        -->
+        <title>Elevation - Settings</title>
+        <!--
+        <script src="/pages/src/preloads.js"></script>
+        -->
+        <link id="favicon" rel="shortcut icon" href="/pages/images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+        <link rel="stylesheet" href="./css/elevation-segments.css"/>
+
+        <script type="module">
+            import {settingsMain} from './src/elevation.mjs';
+            settingsMain();
+        </script>
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img src="/pages/images/icon128.png"/></div>
+                <div class="title">Elevation with Segments - Settings</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Close this window" class="button close electron-only"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="settings">
+            <form class="section">
+                <label>
+                    <key>Data fields:</key>
+                    <input type="number" name="fields"/>
+                </label> 
+                <label>
+                    <key>Disable route optimization</key>
+                    <input type="checkbox" name="disablePenRouting"/>
+                </label>
+                <!--
+                <label>
+                    <key>Debug xCoord:</key>
+                    <input type="checkbox" name="debugXcoord">
+                    <input type="number" name="debugXcoordDistance" step="100" style="--size: 9">
+                </label>
+                
+                <label>
+                    <key>Debug pin placement:</key>
+                    <input type="checkbox" name="debugPinPlacement">
+                    <input type="number" name="debugPinRoad" step="1">
+                    <input type="number" name="debugPinRP">
+                    <input type="number" name="debugPinDistance" step="10">
+                </label>
+                -->
+                <hr/>   
+                <!--
+                <label>
+                    <key data-added="2023-05-30">Profile height:</key>
+                    <input type="range" name="profileHeight" min="5" max="100" step="1" value="20"/>
+                    <input type="number" name="profileHeight" min="5" max="100" step="1" style="--size: 5" value="20"/>%
+                </label>                
+                <label title="Show the profile for the current route (instead of road) when available">
+                    <key data-added="2023-11-01">Route mode:</key>
+                    <input type="checkbox" name="routeProfile" checked/>
+                </label>
+                -->
+                <label title="Show groups rather than individual riders">
+                    <key data-added="2024-08-10">Use groups view</key>
+                    <input type="checkbox" name="showGroups">
+                </label>
+                <label title="Indicate what the max elevation is with a horizontal line on the chart">
+                    <key data-added="2023-11-01">Show max elevation:</key>
+                    <input type="checkbox" name="showElevationMaxLine" checked/>
+                </label>
+                <label title="Show the current altitude on max elevation line">
+                    <key data-added="2025-03-02">&nbsp;&nbsp;- current altitude</key>
+                    <input type="checkbox" name="showCurrentAltitude" data-depends-on="showElevationMaxLine"/>
+                </label>
+                <label title="When zoomed in, show the max elevation for the entire route">
+                    <key data-added="2025-03-02">&nbsp;&nbsp;- route max (zoomed)</key>
+                    <input type="checkbox" name="showRouteMaxElevation" data-depends-on="showElevationMaxLine"/>
+                </label>
+                <label title="Show segment start lines">
+                    <key data-added="2023-12-02">Show segments:</key>
+                    <input type="checkbox" name="showSegmentStart" checked/>
+                </label>
+                <label title="Show segment finish lines">
+                    <key data-added="2023-12-04">Show segment finish:</key>
+                    <input type="checkbox" name="showSegmentFinish" data-depends-on="showSegmentStart"/>
+                </label>
+                <label title="The minimum length a segment must be to show the finish.  If too short then there is too much overlap.">
+                    <key data-added="2023-12-04">&nbsp;&nbsp;- Min segment length</key>
+                    <input type="range" name="minSegmentLength" min="100" max="5000" step="100" data-depends-on="showSegmentFinish"/>
+                    <input type="number" name="minSegmentLength" min="100" max="5000" step="100" style="--size: 7"/>
+                </label>
+                <label title="Show the next segment on the route and the distance remaining to get there">
+                    <key data-added="2023-12-05">Next segment data:</key>
+                    <input type="checkbox" name="showNextSegment"/>
+                </label>
+                <label>
+                    <key data-added="2025-03-18">&nbsp;&nbsp;- Include distance to end</key>
+                    <input type="checkbox" name="showNextSegmentFinish" data-depends-on="showNextSegment"/>
+                </label>
+                <label title="Show the possible powerups at the next arch banner (events only)">
+                    <key data-added="2024-09-02">&nbsp;&nbsp;- Show event powerups:</key>
+                    <input type="checkbox" name="showNextPowerup" data-depends-on="showNextSegment"/>
+                </label>
+                <label title="Show all arch banners regardless of whether or not the entire segment is on the route">
+                    <key data-added="2024-07-26">Show all arches:</key>
+                    <input type="checkbox" name="showAllArches"/>
+                </label>
+                <label title="Include looped/circuit segments (Jungle Loop, Hilly Loop etc.)">
+                    <key data-added="2023-12-02">Include loops:</key>
+                    <input type="checkbox" name="showLoopSegments" data-depends-on="showSegmentStart"/>
+                </label>
+                <label title="Show lap markers">
+                    <key data-added="2023-12-02">Show lap markers:</key>
+                    <input type="checkbox" name="showLapMarker" checked/>
+                </label>
+                <label title="When freeriding on a looped route, update the lap marker with the number of completed laps">
+                    <key data-added="2023-12-30">Show completed laps:</key>
+                    <input type="checkbox" name="showCompletedLaps" data-depends-on="showLapMarker">
+                </label>
+                <label title="Show distance markers along the x-axis">
+                    <key data-added="2025-03-04">Show X-Axis</key>
+                    <input type="checkbox" name="showXaxis">
+                </label>
+                <label title="The distance between km markers.  Set to 0 to auto scale.">
+                    <key data-added="2025-03-04">&nbsp;&nbsp;- Km increments</key>
+                    <input type="range" name="xAxisIncrements" min="0" max="20" step="1" data-depends-on="showXaxis">
+                    <input type="number" name="xAxisIncrements" min="0" max="20" step="1" data-depends-on="showXaxis">
+                </label>
+                <label title="Show the distance to the end of the route rather than counting up from 0">
+                    <key data-added="2025-03-12">&nbsp;&nbsp;- invert X-Axis </key>
+                    <input type="checkbox" name="xAxisInverse" data-depends-on="showXaxis">
+                </label>
+                <label title="Display a line ahead of the watched rider at the specified distance">
+                    <key data-added="2024-08-21">Show a line ahead:</key>
+                    <input type="checkbox" name="showLineAhead">
+                </label>
+                <label>
+                    <key>&nbsp;&nbsp;- meters:</key>
+                    <input type="range" name="distanceAhead" min="500" max="5000" step="500" data-depends-on="showLineAhead">
+                    <input type="number" name="distanceAhead" min="500" max="5000" step="500">
+                </label>
+                <label>
+                    <key>&nbsp;&nbsp;- line style:</key>
+                    <select name="aheadLineType" data-depends-on="showLineAhead"/>
+                        <option value="solid">Solid</option>
+                        <option value="dashed">Dashed</option>
+                        <option value="dotted">Dotted</option>
+                    </select>
+                    <input type="color" name="aheadLineColor" data-depends-on="showLineAhead"/>
+                    <input type="text" name="aheadLineColor" data-depends-on="showLineAhead" size="7"/>
+                </label>
+                <label>
+                    <key data-added="2024-02-29">Gradient color scheme:</key>
+                    <select name="colorScheme">
+                        <option value="sauce">Sauce</option>
+                        <option value="vv">Veloviewer (ish)</option>  
+                        <option value="cvdBuRd">CVD-BuRd</option>             
+                        <option value="cvdPRGn">CVD-PRGn</option>        
+                        <option value="cvdSunset">CVD-Sunset</option>                                            
+                    </select>
+                </label>
+                <label>
+                    <key data-added="2024-03-20">Gradient color opacity:</key>
+                    <input type="range" name="gradientOpacity" min="0" max="1" step="0.05"/>
+                    <input type="number" name="gradientOpacity" min="0" max="1" step="0.05" style="--size: 5"/>
+                </label>
+                <hr/>
+                <label>
+                    <key>Font scaling:</key>
+                    <input type="range" name="fontScale" min="0.5" max="2" step="0.1"/>
+                    <input type="number" name="fontScale" min="0.5" max="2" step="0.1" style="--size: 5"/>
+                </label>
+                              
+                <hr>
+                <label title="The type of line used for segments and laps">
+                    <key data-added="2023-12-03">Segment Line type:</key>
+                    Start:&nbsp;
+                    <select name="lineType">
+                        <option value="solid">Solid</option>
+                        <option value="dashed">Dashed</option>
+                        <option value="dotted">Dotted</option>
+                    </select>
+                    Finish:&nbsp;
+                    <select name="lineTypeFinish">
+                        <option value="solid">Solid</option>
+                        <option value="[5, 10]">Double Dashed</option>
+                        <option value="dashed">Dashed</option>
+                        <option value="dotted">Dotted</option>
+                    </select>
+                </label>
+                <label title="The thickness of lines used for segments and laps">
+                    <key data-added="2023-12-03">Line size:</key>
+                    <input type="range" name="lineSize" min="0.25" max="10" step="0.25"/>
+                    <input type="number" name="lineSize" min="0.25" max="10" step="0.25" style="--size: 6"/>
+                </label>
+                <label>
+                    <key data-added="2024-03-02">Line/text color</key>
+                    <input type="color" name="lineTextColor" data-depends-on="showSegmentStart">
+                </label>
+                <label>
+                    <key>Theme override:</key>
+                    <select is="sauce-theme" override></select>
+                </label>                
+                <label title="Mostly useful for streamers using OBS window and browser sources">
+                    <key>Solid background:</key>
+                    <input type="checkbox" name="solidBackground"/>
+                </label>
+                <label>
+                    <key>Background color:</key>
+                    <input type="color" name="backgroundColor" data-depends-on="solidBackground"/>
+                    <input type="text" name="backgroundColor" data-depends-on="solidBackground" size="7"/>
+                </label>
+                <label>
+                    <key>Data transparency:</key>
+                    <input type="range" name="dataTransparency" min="0" max="1" step="0.05"/>
+                    <input type="number" name="dataTransparency" min="0" max="1" step="0.05" style="--size: 6"/>
+                </label>
+                <hr/>
+                <label>
+                    <key>Export segment data<br>for other mods:</key>
+                    <input type="checkbox" name="setAthleteSegmentData" data-depends-on="showSegmentStart">
+                </label>
+                <hr/>
+                <label>
+                    <key>Override distance (meters):</key>
+                    <input type="number" name="overrideDistance" min="0" max="100000" step="100" style="--size: 8"/>
+                </label>
+                <label>
+                    <key>Override laps:</key>
+                    <input type="number" name="overrideLaps" min="0" max="50" step="1" style="--size: 6"/>
+                </label>
+                <label title="Y-Axis minimum - affects the scaling on low/medium elevation routes">
+                    <key data-added="2023-01-20">Y-Axis minimum</key>
+                    <input type="range" name="yAxisMin" min="10" max="200" step="10"/>
+                    <input type="number" name="yAxisMin" min="10" max="200" step="10" style="--size: 5"/>
+                </label> 
+                <label title="In multi lap events, only show one lap at a time">
+                    <key data-added="2024-02-05">Single lap view</key>
+                    <input type="checkbox" name="singleLapView">
+                </label>
+                <label title="Zoom into show the specified number of meters ahead.">
+                    <key data-added="2024-02-06">Profile zoom </key>
+                    <input type="checkbox" name="profileZoom" data-depends-on="overrideDistance==0">                    
+                </label>
+                <label>
+                    <key data-added="2024-11-21">&nbsp;&nbsp;- remaining route</key>
+                    <input type="checkbox" name="zoomRemainingRoute" data-depends-on="profileZoom">
+                </label>
+                <label title="How far ahead to display">    
+                    <key data-added="2024-02-06">&nbsp;&nbsp;- Show the next </key>                
+                    <input type="range" name="forwardDistance" min="1000" max="50000" step="500" data-depends-on="!zoomRemainingRoute"/>
+                    <input type="number" name="forwardDistance" min="1000" max="50000" step="500" style="--size: 7" data-depends-on="!zoomRemainingRoute"/> meters
+                </label>
+                <label title="How far behind to display">    
+                    <key data-added="2025-03-01">&nbsp;&nbsp;- Show the previous </key>                
+                    <input type="range" name="behindDistance" min="100" max="2000" step="100" data-depends-on="profileZoom"/>
+                    <input type="number" name="behindDistance" min="100" max="2000" step="100" style="--size: 7" data-depends-on="profileZoom"/> meters
+                </label>
+                <label>
+                    <key data-added="2024-03-21">Zoom to next segment:</key>
+                    <input type="checkbox" name="zoomNextSegment" data-depends-on="!profileZoom">
+                </label>
+                <label title="Only zoom to the next segment when within the approach distance in the following option">
+                    <key data-added="2024-06-11">&nbsp;&nbsp;- Only when within<br>&nbsp;&nbsp;&nbsp;&nbsp;approach distance </key>
+                    <input type="checkbox" name="zoomSegmentOnlyWithinApproach" data-depends-on="zoomNextSegment">
+                </label>
+                <label>    
+                    <key data-added="2024-03-21">&nbsp;&nbsp;- Show the approaching </key>                
+                    <input type="range" name="zoomNextSegmentApproach" min="100" max="1000" step="100" data-depends-on="zoomNextSegment"/>
+                    <input type="number" name="zoomNextSegmentApproach" min="100" max="1000" step="100" style="--size: 7" data-depends-on="zoomNextSegment"/> meters
+                </label>
+                <label>
+                    <key data-added="2024-03-21">&nbsp;&nbsp;- After last segment<br>&nbsp;&nbsp;&nbsp;&nbsp;show final km</key>
+                    <input type="checkbox" name="zoomFinalKm" data-depends-on="zoomNextSegment">
+                </label>
+                <label title="Clicking the elevation profile will toggle a zoom slider on and off">
+                    <key data-added="2024-03-21">Enable Zoom slider:</key>
+                    <input type="checkbox" name="zoomSlider">
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

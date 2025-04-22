@@ -1,0 +1,35 @@
+div .scroll-container {
+    overflow: hidden;
+    color: black;
+}
+#event-title-scroll {
+    width: auto;
+    transform: translateX(100%);
+    animation: anim-event-name 10s alternate-reverse infinite;
+  }
+  
+  @keyframes anim-event-name {
+    from { top: 0%; transform: translateX(-50%); }
+    to { top: 0%; transform: translateX(1%); }
+}
+
+timeff {
+    font-weight: 400;
+    opacity: 0.6;
+    zoom: 0.8;
+}
+
+div.striked {
+    color: dimgray;
+    text-decoration: line-through;
+}
+
+#emptyPanel {
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+.zwift-blue {
+    background-color: #2596be;
+}

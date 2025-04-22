@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="settings-page" tabindex="0" data-settings-key="overview-settings-v3">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self';"/>
+
+        <title>Settings - Sauce for Zwift™</title>
+
+        <script src="./src/preloads.js"></script>
+
+        <link rel="preload" href="/pages/fonts/PermanentMarker.woff2?v=1" as="font"
+              type="font/woff2" crossorigin="anonymous">
+        <link id="favicon" rel="shortcut icon" href="images/favicon.png"/>
+        <link rel="stylesheet" href="css/common.css"/>
+        <link rel="stylesheet" href="css/overview-settings.css"/>
+
+        <script type="module" src="./src/overview.mjs?settings"></script>
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img src="images/icon128.png"/></div>
+                <div class="title">Settings</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Close this window" class="button close electron-only"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+
+        <div id="settings" class="tabbed">
+            <header class="tabs">
+                <div class="title tab active">About</div>
+                <div class="title tab">General</div>
+                <div class="title tab">Appearance</div>
+                <div class="title tab">Windows</div>
+                <div class="title tab">Mods</div>
+            </header>
+
+            <form class="app-settings section tab active about">
+                <div class="desc">
+                    <h2 class="banner"><img class="logo" src="/pages/images/icon256.png"/> Sauce for Zwift<sup>TM</sup></h2>
+                    Sauce is made possible by folks like
+                    <a href="https://www.sauce.llc/supporters.html" target="_blank"
+                       external class="sauce-star">Frank</a>
+                </div>
+
+                <br/>
+
+                <label>
+                    <key>Version:</key>
+                    <span class="display-field" name="version"></span>
+                </label>
+                <label>
+                    <key data-added="2023-12-01">Update channel:</key>
+                    <select name="updateChannel">
+                        <option value="stable">Stable</option>
+                        <option value="beta">Beta</option>
+                        <option value="alpha">Alpha</option>
+                    </select>
+                    <span class="restart-required"></span>
+                </label>
+
+                <br/>
+
+                <label>
+                    <key>Zwift Profile:</key>
+                    <a href="profile.html?windowType=profile" target="_blank"><img class="avatar"/><span class="display-field" name="profileDesc"/></a>
+                </label>
+
+                <label class="login" title="This should be the account you use for the real Zwift game" style="display:none;">
+                    <key>Main Zwift Login:</key>
+                    <span class="display-field" name="mainZwiftLogin">-</span>
+                    <div title="You will be asked to login again on restart."
+                         class="std button xs" data-action="logout-zwift" data-id="main">Logout</div>
+                    <span class="restart-required"></span>
+                </label>
+                <label class="login" title="This should be a UNIQUE second account only used by Sauce" style="display:none;">
+                    <key>Monitor Zwift Login:</key>
+                    <span class="display-field" name="monitorZwiftLogin">-</span>
+                    <div title="You will be asked to login again on restart."
+                         class="std button xs" data-action="logout-zwift" data-id="monitor">Logout</div>
+                    <span class="restart-required"></span>
+                </label>
+
+                <hr class="electron-only"/>
+
+                <div class="section electron-only maintenance">
+                    <div class="title">Maintenance:</div>
+                    <div class="action-buttons">
+                        <div class="std button danger" title="Reset window positions and configuration to defaults"
+                             data-action="reset-state">Reset to defaults</div>
+                        <div class="std button" title="Clear the athlete cache database"
+                             data-action="reset-athletes-db">Clear Athletes Cache</div>
+                        <div class="std button" data-action="restart">Restart</div>
+                    </div>
+                    <div class="links">
+                        <a href="logs.html?windowType=logs" target="_blank">Debug Logs</a>
+                        <a href="stats-for-nerds.html?windowType=stats-for-nerds" target="_blank">Stats for Nerds</a>
+                    </div>
+                </div>
+            </form>
+
+            <form class="app-settings section tab">
+                <label title="Access Sauce for Zwift from any browser on your network">
+                    <key>Web Server:</key>
+                    <input type="checkbox" name="webServerEnabled"/>
+                    <span class="restart-required"></span>
+                </label>
+
+                <label class="indent">
+                    <key>Port:</key>
+                    <input data-depends-on="webServerEnabled" type="number" style="--size: 7" name="webServerPort"/>
+                    <span class="restart-required"></span>
+                </label>
+
+                <label class="indent">
+                    <key>Web Server URL:</key>
+                    <input style="display: none" type="checkbox" name="webServerEnabled"/>
+                    <a href external target="_blank" class="display-field" name="webServerURL"
+                       data-depends-on="webServerEnabled">disabled</a>
+                </label>
+
+                <label title="Game Connection allows Sauce to perform optional functions like switching the athlete being watched."
+                       warning="CAUTION: Game Connection uses the Companion App protocol which only supports a single connection.
+
+If you require the Zwift Companion App's Game mode, DO NOT enable this feature.">
+                    <key>Game Connection:</key>
+                    <input type="checkbox" name="gameConnectionEnabled"/>
+                    <span class="restart-required"></span>
+                    <span class="display-field" name="gameConnectionStatus"></span>
+                </label>
+                <label title="Enabling the GPU may help with performance but can cause issues on some Windows machines.">
+                    <key>Enable GPU:</key>
+                    <input type="checkbox" data-store="loader" name="gpuEnabled"/>
+                    <span class="restart-required"></span>
+                </label>
+
+                <hr/>
+
+                <div class="title">Stats:</div>
+
+                <label title="Automatically start and stop a lap for events">
+                    <key>Auto lap events:</key>
+                    <input type="checkbox" name="autoLapEvents" data-depends-on="!autoResetEvents"/>
+                    <span class="restart-required"></span>
+                </label>
+                <label title="Automatically reset data when an event starts and trigger a lap on end">
+                    <key>Auto reset for events:</key>
+                    <input type="checkbox" name="autoResetEvents" data-depends-on="!autoLapEvents"/>
+                    <span class="restart-required"></span>
+                </label>
+                <label title="Automatically trigger laps at a time or distance marker">
+                    <key>Auto lap:</key>
+                    <input type="checkbox" name="autoLap"/>
+                    <span class="restart-required"></span>
+                </label>
+                <label class="indent">
+                    <key>Mode:</key>
+                    <select name="autoLapMetric" data-depends-on="autoLap">
+                        <option value="distance">Distance</option>
+                        <option value="time">Time</option>
+                    </select>
+                    <span class="restart-required"></span>
+                </label>
+                <label class="indent" title="1 mi = 1.609344 km">
+                    <key>Interval:</key>
+                    <input type="number" min="0" name="autoLapInterval" data-depends-on="autoLap"/>
+                    <span class="display-field" name="autoLapIntervalUnits"></span>
+                    <span class="restart-required"></span>
+                </label>
+
+                <label>
+                    <key>Power Zones:</key>
+                    <select name="powerZonesType">
+                        <option value="coggan">Coggan (7 Zones)</option>
+                        <option value="polarized">Polarized (3 Zones)</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <span class="restart-required"></span>
+                </label>
+
+                <label class="custom-power-zones" data-depends-on="powerZonesType==custom">
+                    <key>Custom Power Zones:</key>
+                    <textarea name="customPowerZones">[
+    {"zone": "Z1", "from": 0, "to": 0.5},
+    {"zone": "Z1", "from": 0.5, "to": 1.0}
+]</textarea>
+                </label>
+
+                <label>
+                    <key>Sweet Spot Zone:</key>
+                    <select name="sweetspotType">
+                        <option value="">Disabled</option>
+                        <option value="coggan">Coggan (88% -&gt; 93%)</option>
+                        <option value="fascat">FasCat (84% -&gt; 97%)</option>
+                    </select>
+                    <span class="restart-required"></span>
+                </label>
+            </form>
+
+            <form class="settings section tab">
+                <div class="title">All windows:</div>
+
+                <label title="The default theme for all windows">
+                    <key>Default Theme:</key>
+                    <select is="sauce-theme"></select>
+                </label>
+                <label>
+                    <key>Imperial units:</key>
+                    <input type="checkbox" name="/imperialUnits"/>
+                </label>
+                <label title="When no data is detected automatically hide windows"
+                       class="electron-only">
+                    <key>Auto hide windows:</key>
+                    <input type="checkbox" name="autoHideWindows"/>
+                </label>
+
+                <hr/>
+
+                <div class="title">Overview window:</div>
+
+                <label>
+                    <key>Left fields:</key>
+                    <input type="number" min="0" max="10" step="1" name="leftFields"/>
+                </label>
+                <label title="Use this to respect the notch on a MacBookPro or avoid overlap with the Zwift HUD">
+                    <key>Center gap size:</key>
+                    <input type="number" name="centerGapSize" min="0" step="1"/>
+                </label>
+                <label>
+                    <key>Right fields:</key>
+                    <input type="number" min="0" max="10" step="1" name="rightFields"/>
+                </label>
+                <label title="Prevent fields from rotating on click">
+                    <key>Lock fields:</key>
+                    <input type="checkbox" name="lockedFields"/>
+                </label>
+                <label title="Mostly useful for streamers using OBS window and browser sources">
+                    <key>Solid background:</key>
+                    <input type="checkbox" name="solidBackground"/>
+                </label>
+                <label>
+                    <key>Background color:</key>
+                    <input type="color" name="backgroundColor" data-depends-on="solidBackground"/>
+                    <input type="text" name="backgroundColor" data-depends-on="solidBackground" size="7"/>
+                    <input type="number" title="Opacity" name="backgroundAlpha" data-depends-on="solidBackground"
+                           style="--size: 5" min="0" max="100" value="100"/>%
+                </label>
+
+                <hr/>
+
+                <label>
+                    <key data-added="2023-12-01">Hide Analysis button:</key>
+                    <input type="checkbox" name="hideAnalysisButton"/>
+                </label>
+                <label>
+                    <key data-added="2023-12-01">Hide Athletes button:</key>
+                    <input type="checkbox" name="hideAthletesButton"/>
+                </label>
+                <label>
+                    <key data-added="2023-12-01">Hide Events button:</key>
+                    <input type="checkbox" name="hideEventsButton"/>
+                </label>
+
+                <hr/>
+
+                <label>
+                    <key>Theme override:</key>
+                    <select is="sauce-theme" override></select>
+                </label>
+            </form>
+
+            <form id="windows" class="section tab">
+                <div class="title">Active Windows:</div>
+
+                <div class="active-windows-wrap">
+                    <table class="active-windows">
+                        <thead><tr><th>Name</th><th>Status</th><th></th><th></th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="add-new">
+                    <div class="title">Add new window:</div>
+                    <select name="type"></select>
+                    <input type="button" value="Create"/>
+                </div>
+
+                <hr/>
+
+                <div class="title">Profiles:</div>
+                <table class="profiles">
+                    <thead><tr><th>Name</th><th>Windows</th><th></th><th></th><th></th><th></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <div class="action-buttons">
+                    <div class="std small button" data-win-action="profile-create">Create new profile</div>
+                    <div class="std small button" data-win-action="profile-import">Import from file</div>
+                </div>
+            </form>
+
+            <div class="settings section tab mods">
+                <div class="desc">
+                    <p>Mods add new functionality <i>(i.e. window types, data fields, etc.)</i> or change existing behavior.</p>
+
+                    <a class="official-mod-store" href="https://mods.sauce.llc/?width=1000&height=0.9&frame"
+                       target="mod-browse"><img src="images/mod-store-badge.webp"/></a>
+                    <footer><b>NOTE:</b> Mods are written by 3rd parties, so be sure
+                        you trust the author before installing.</footer>
+                </div>
+
+                <hr/>
+
+                <div class="title">Installed:</div>
+                <div id="mods-container"></div>
+
+                <hr/>
+
+                If you need help there is an active community of Mod developers on the
+                <a href="https://discord.com/invite/3d8TwBHaX2" target="_blank"
+                   external>Sauce discord server</a>.<br/>
+                <br/>Developers looking to get started should look at the
+                <a href="https://github.com/SauceLLC/sauce4zwift-mod-example" target="_blank"
+                   external>example Mod on GitHub</a>.
+
+                <hr/>
+
+                <div class="std button mods-path">Open unpacked SauceMods folder</span></div>
+            </div>
+        </div>
+
+        <footer class="legal">
+            <a href="release-notes.html?frame&width=600&height=0.8" target="_blank">Release Notes</a>
+            |
+            <a href="https://www.sauce.llc/legal/sauce4zwift-terms.html?frame" target="_blank">Terms and Conditions</a>
+            |
+            <a href="https://www.sauce.llc/legal/sauce4zwift-privacy.html?frame" target="_blank">Privacy Policy</a>
+            |
+            <attr for="tp">TrainingPeaks</attr>
+            |
+            <attr for="support">Support</attr>
+        </footer>
+    </body>
+</html>

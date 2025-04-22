@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="settings-page" tabindex="0" data-settings-key="overview-settings-v3">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+        
+        <link id="favicon" rel="shortcut icon" href="../../../../images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+        <link rel="stylesheet" href="../css/settings.css"/>
+
+        <title>O101: Overview - Settings</title>
+
+        <script type="module">
+            import {main} from '../src/o101/settings.mjs';
+            main('overview-fields-v2');
+        </script>
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img src="/pages/images/icon128.png"/></div>
+                <div class="title">O101: Overview - Settings</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Close this window" class="button close electron-only" onclick="window.close()"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="settings">
+            <form id="options" class="section">
+                <div class="title">Window Settings</div>
+                <label>
+                    <key>Theme override:</key>
+                    <select is="sauce-theme" override></select>
+                </label>
+                <label>
+                    <key>Font scaling:</key>
+                    <input type="range" name="fontScale" min="0.5" max="2" step="0.1"/>
+                    <input type="number" name="fontScale" min="0.5" max="2" step="0.1" style="--size: 5"/>
+                </label>
+                <label>
+                    <key>Rider info:</key>
+                    <input type="checkbox" name="showRiderInfo"/>
+                </label>
+                <label>
+                    <key>Session info:</key>
+                    <input type="checkbox" name="showSessionInfo"/>
+                </label>                
+                <label>
+                    <key>Event info:</key>
+                    <input type="checkbox" name="showEventInfo"/> (when available)
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>- hide lap info:</key>
+                        <input type="checkbox" name="hideEventLapInfo" data-depends-on="showEventInfo"/>
+                    </label>  
+                    <label>
+                        <key>- current position:</key>
+                        <input type="checkbox" name="showEventInfoPosition" data-depends-on="showEventInfo"/>
+                    </label>                    
+                    <label>
+                        <key>- progress:</key>
+                        <input type="checkbox" name="showEventInfoProgress" data-depends-on="showEventInfo"/>
+                    </label>   
+                    <label>
+                        <key>- elapsed time:</key>
+                        <input type="checkbox" name="showEventInfoElapsedTime" data-depends-on="showEventInfo"/>
+                    </label>     
+                    <label>
+                        <key>- elapsed distance:</key>
+                        <input type="checkbox" name="showEventInfoElapsedDistance" data-depends-on="showEventInfo"/>
+                    </label>
+                    <label>
+                        <key>- elevation:</key>
+                        <input type="checkbox" name="showEventElevationToGo" data-depends-on="showEventInfo"/>
+                    </label>
+                    <label>
+                        <key>- show eta:</key>
+                        <input type="checkbox" name="showEventEta" data-depends-on="showEventInfo"/>
+                    </label> 
+                    <label>
+                        <key>- finish:</key>
+                        <input type="checkbox" name="showEventInfoFinish" data-depends-on="showEventInfo"/>
+                    </label> 
+                </div>
+                <hr/>
+                <label>These options needs Zenmaster mod, export segment data</label>
+                <label>
+                    <key>Route segments:</key>
+                    <input type="checkbox" name="showSegmentOverview"/>
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>- hide completed:</key>
+                        <input type="checkbox" name="showSegmentOverviewHideCompleted" data-depends-on="showSegmentOverview"/>
+                    </label>
+                    <label>
+                        <key>- max next segments:</key>
+                        <input type="checkbox" name="showSegmentOverviewMaxSegments" data-depends-on="showSegmentOverview"/> show only next 5
+                        <!--<select name="showSegmentOverviewMaxSegments" data-depends-on="showSegmentOverview">
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                            <option value="128">all</option>
+                        </select>-->
+                    </label>
+                    <label>
+                        <key>- distance:</key>
+                        <select name="showSegmentOverviewDistance" data-depends-on="showSegmentOverview">
+                            <option value="mark">as mark</option>
+                            <option value="togo">to go</option>
+                        </select>
+                    </label>
+                </div>
+                <label>
+                    <key>Segment info:</key>
+                    <input type="checkbox" name="showSegmentInfo"/>
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>- personal best:</key>
+                        <input type="checkbox" name="showSegmentPB" data-depends-on="showSegmentInfo"/>
+                    </label>                    
+                    <label>
+                        <key>- distance to go:</key>
+                        <input type="checkbox" name="showSegmentInfoDistanceToGo" data-depends-on="showSegmentInfo"/>
+                    </label>
+                    <label>
+                        <key>- progress:</key>
+                        <input type="checkbox" name="showSegmentInfoProgress" data-depends-on="showSegmentInfo"/>
+                    </label>
+                    <label>
+                        <key>- elapsed time:</key>
+                        <input type="checkbox" name="showSegmentInfoElapsed" data-depends-on="showSegmentInfo"/>
+                    </label>
+                    <label>
+                        <key>- expected time:</key>
+                        <input type="checkbox" name="showSegmentInfoEta" data-depends-on="showSegmentInfo"/>
+                    </label>
+                </div>
+                <label>
+                    <key>Leaderboard:</key>
+                    <input type="checkbox" name="showLeaderboard"/>
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>- always:</key>
+                        <input type="checkbox" name="showLeaderboardAlways" data-depends-on="showLeaderboard"/> (next segment)
+                    </label>
+                    <!--<label>
+                        <key>- by time:</key>
+                        <input type="checkbox" name="showLeaderboardByTime" data-depends-on="showLeaderboard"/> (next segment)
+                    </label>
+                    <label>
+                        <key>&nbsp;</key>
+                        approaching: <input type="number" name="showLeaderboardByTimeApproaching" min="10" max="180" step="10" style="--size: 5" data-depends-on="showLeaderboardByTime"/>, leaving: <input type="number" name="showLeaderboardByTimeLeaving" min="10" max="180" step="10" style="--size: 5" data-depends-on="showLeaderboardByTime"/>
+                    </label>-->
+                    <label>
+                        <key>- max riders</key>
+                        <input type="number" name="showLeaderboardMaxRiders" min="5" max="50" step="1" style="--size: 5" data-depends-on="showLeaderboard"/>
+                    </label>
+                    <label>
+                        <key>- marked riders only:</key>
+                        <input type="checkbox" name="showLeaderboardMarkedRidersOnly" data-depends-on="showLeaderboard"/>
+                    </label>               
+                </div>
+                <hr/>
+                <label title="Mostly useful for streamers using OBS window and browser sources">
+                    <key>Solid background:</key>
+                    <input type="checkbox" name="solidBackground"/>
+                </label>
+                <label>
+                    <key>Background color:</key>
+                    <input type="color" name="backgroundColor" data-depends-on="solidBackground"/>
+                    <input type="text" name="backgroundColor" data-depends-on="solidBackground" size="7"/>
+                    <input type="number" title="Opacity" name="backgroundAlpha" data-depends-on="solidBackground"
+                           style="--size: 5" min="0" max="100" value="100"/>%
+                </label>
+            </form>
+            <form id="fields" class="section">
+            </form>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,45 @@
+{
+    "manifest_version": 1,
+    "name": "Brian Mudge MODs for S4Z",
+    "description": "Brian's Mod Collection for S4Z",
+    "author": "Brian Mudge",
+    "website_url": "https://www.sauce.llc",
+    "version": "0.2.9",
+    "content_css": [
+        
+    ],
+    "web_root": "pages",
+    "windows": [
+        {
+            "file": "pages/estimatedFinish-v1.html",
+            "id": "Estimated Finish",
+            "name": "Estimated Finish",
+            "description": "Calculate the estimated finish time for an event",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 400,
+                "height": 450,
+                "x": -300,
+                "y": 100
+            }
+        },
+        {
+            "file": "pages/DSNotes.html",
+            "id": "DS Notes",
+            "name": "DS Notes",
+            "description": "Display Start, Length and End, for known segments, on a route",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 150,
+                "height": 400,
+                "x": 400,
+                "y": 250
+            }
+        }
+        
+    ]
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="settings-page" tabindex="0" data-settings-key="nearby-race-v2-settings-v3">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+        
+        <link id="favicon" rel="shortcut icon" href="../../../../images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+        <link rel="stylesheet" href="../css/settings.css"/>
+
+        <title>O101: Nearby Race v2 - Settings</title>
+
+        <script type="module">
+            import {main} from '../src/o101/settings.mjs';
+            main('nearby-race-v2-fields-v2');
+        </script>
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img src="/pages/images/icon128.png"/></div>
+                <div class="title">O101: Nearby Race v2 - Settings</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Close this window" class="button close electron-only" onclick="window.close()"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="settings">
+            <form id="options" class="section">
+                <div class="title">Window Settings</div>
+                <label>
+                    <key>Theme override:</key>
+                    <select is="sauce-theme" override></select>
+                </label>
+                <label>
+                    <key>Refresh interval:</key>
+                    <input type="number" min="0" step="1" name="refreshInterval"/> <small>(seconds)</small>
+                </label>
+                <label>
+                    <key>Font scaling:</key>
+                    <input type="range" name="fontScale" min="0.5" max="2" step="0.1"/>
+                    <input type="number" name="fontScale" min="0.5" max="2" step="0.1" style="--size: 5"/>
+                </label>
+                <hr/>
+                <label>
+                    <key>View:</key>
+                    <select name="nearbyRidersView">
+                        <option value="noob">Noob</option>
+                        <option value="racer">Racer</option>
+                        <option value="zwift">Zwift</option>
+                        <option value="sandbagger">Sandbagger</option>
+                    </select>
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>- show full name:</key>
+                        <input type="checkbox" name="showNearbyRidersFullName" data-depends-on="nearbyRidersView['racer']"/>
+                    </label>
+                    <label>
+                        <key>- show position:</key>
+                        <input type="checkbox" name="nearbyShowPosition"/> <small>(if available)</small>
+                    </label>
+                    <label>
+                        <key>- show category:</key>
+                        <input type="checkbox" name="nearbyShowCategory"/> <small>(if available)</small>
+                    </label>
+                    <label>
+                        <key>- show team:</key>
+                        <input type="checkbox" name="nearbyShowTeam"/>
+                    </label>
+                    <label>
+                        <key>- show racing score:</key>
+                        <input type="checkbox" name="nearbyShowRacingScore"/>
+                    </label>
+                    <label>
+                        <key>- show gap distance:</key>
+                        <input type="checkbox" name="nearbyShowGapDistance"/>
+                    </label>
+                    <label>
+                        <key>- show speed:</key>
+                        <input type="checkbox" name="nearbyShowSpeed"/>
+                    </label>
+                    <label>
+                        <key>- show draft:</key>
+                        <input type="checkbox" name="nearbyShowDraft"/>
+                    </label>
+                    <label>
+                        <key>- show W'bal:</key>
+                        <input type="checkbox" name="nearbyShowWbal"/>
+                    </label>
+                    <label>
+                        <key>- show heartrate:</key>
+                        <input type="checkbox" name="nearbyShowHr"/>
+                    </label>
+                </div>
+                <label>
+                    <key>Header style:</key>
+                    <select name="nearbyRidersHeader">
+                        <option value="">Default</option>
+                        <option value="hidden">Hidden</option>
+                        <option value="position">Position</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    &nbsp;&nbsp;<input type="text" name="nearbyRidersHeaderText" size="10"/>
+                </label>
+                <label>
+                    <key>Footer style:</key>
+                    <select name="nearbyRidersFooter">
+                        <option value="">Default</option>
+                        <option value="hidden">Hidden</option>
+                        <option value="togo">Distance to go</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    &nbsp;&nbsp;<input type="text" name="nearbyRidersFooterText" size="10"/>
+                </label>
+                <label>
+                    <key>Max riders to show</key>
+                    <input type="number" name="maxNearbyRiders" min="2" max="50" step="1" style="--size: 5"/>
+                </label>
+                <label>
+                    <key>Marked riders:</key>
+                    <select name="showNearbyRidersMarked">
+                        <option value="marked">Marked</option>
+                        <option value="sticky">Sticky</option>
+                        <option value="only">Only</option>
+                    </select>
+                </label>
+                <label>
+                    <key>Show robopacers:</key>
+                    <input type="checkbox" name="stickyRoboPacers"/>
+                </label>
+                <label>
+                    <key>Show leader/sweeper:</key>
+                    <input type="checkbox" name="stickyLeadersSweepers"/>
+                </label>
+                <label>
+                    <key>My category only:</key>
+                    <input type="checkbox" name="showNearbyRidersCategoryOnly"/>
+                </label>
+                <label>
+                    <key>Refresh on attack:</key>
+                    <input type="checkbox" name="nearbyUpdateOnAttack"/>
+                    , threshold&nbsp;
+                    <input type="number" min="3" step="1" name="updateOnAttackMinWkg" style="--size: 4"/>&nbsp;Wkg
+                </label>
+                <hr/>
+                <label>
+                    <key>Name overrides:</key>
+                    <input type="checkbox" name="tttMode"/>
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>- Team name:</key>
+                        <input type="text" name="tttTeamName" size="8" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Number prefix:</key>
+                        <input type="checkbox" name="tttPrefix" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #1:</key>
+                        <input type="text" name="tttRider1Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider1Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #2:</key>
+                        <input type="text" name="tttRider2Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider2Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #3:</key>
+                        <input type="text" name="tttRider3Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider3Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #4:</key>
+                        <input type="text" name="tttRider4Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider4Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #5:</key>
+                        <input type="text" name="tttRider5Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider5Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #6:</key>
+                        <input type="text" name="tttRider6Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider6Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #7:</key>
+                        <input type="text" name="tttRider7Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider7Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                    <label>
+                        <key>- Rider #8:</key>
+                        <input type="text" name="tttRider8Id" size="8" data-depends-on="tttMode"/><input type="text" name="tttRider8Name" size="16" data-depends-on="tttMode"/>
+                    </label>
+                </div>
+                <hr/>
+                <label>
+                    <key>Flamme Rouge Racing</key>
+                    <input type="checkbox" name="frrMode"/>
+                </label>
+                <div class="sub">
+                    <label>
+                        <key>Show FHRC badges:</key>
+                        <input type="checkbox" name="frrBadges" data-depends-on="frrMode"/>
+                    </label>
+                    <label>
+                        <key>My FHRC:</key>
+                        <select name="frrMyFhrc" data-depends-on="frrMode">
+                            <option value="UNC"></option>
+                            <option value="CAP">Capsaicin (CAP)</option>
+                            <option value="DRA">Dragon (DRA)</option>
+                            <option value="CRP">Caroliner Reaper (CRP)</option>
+                            <option value="GHT">Ghost (GHT)</option>
+                            <option value="HAB">Habanero (HAB)</option>
+                            <option value="BON">Bonnet (BON)</option>
+                            <option value="CAY">Cayenne (CAY)</option>
+                            <option value="JLP">Jalapeno (JLP)</option>
+                            <option value="PEP">Pepperoncini (PEP)</option>
+                            <option value="BEL">Bell (BEL)</option>
+                        </select>
+                    </label>
+                    <label>
+                        <key>My FHRC badge:</key>
+                        <input type="color" name="frrTextColor" data-depends-on="frrMode"/>
+                        <input type="color" name="frrBackgroundColor" data-depends-on="frrMode"/>
+                    </label>
+                    <label>
+                        <key>Show my FHRC only:</key>
+                        <input type="checkbox" name="frrMyFhrcOnly" data-depends-on="frrMode"/>
+                    </label>
+                    <label>
+                        <key>My FHRC footer text:</key>
+                        <input type="checkbox" name="frrMyFhrcFooter" data-depends-on="frrMode"/>
+                    </label>
+                </div>
+                <hr/>
+                <label title="Mostly useful for streamers using OBS window and browser sources">
+                    <key>Solid background:</key>
+                    <input type="checkbox" name="solidBackground"/>
+                </label>
+                <label>
+                    <key>Background color:</key>
+                    <input type="color" name="backgroundColor" data-depends-on="solidBackground"/>
+                    <input type="text" name="backgroundColor" data-depends-on="solidBackground" size="7"/>
+                    <input type="number" title="Opacity" name="backgroundAlpha" data-depends-on="solidBackground"
+                           style="--size: 5" min="0" max="100" value="100"/>%
+                </label>
+            </form>
+            <form id="fields" class="section">
+            </form>
+        </div>
+    </body>
+</html>

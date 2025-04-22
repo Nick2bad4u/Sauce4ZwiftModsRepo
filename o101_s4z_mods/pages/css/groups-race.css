@@ -1,0 +1,151 @@
+#content {
+    width: 100%;
+}
+
+div .group-delta {
+    display: none;
+}
+
+div .group {
+    background-image: linear-gradient(135deg, hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/var(--final-bg-opacity)), hsl(var(--theme-bg2-hue) var(--theme-bg2-sat) var(--theme-bg2-light)/var(--final-bg-opacity)));
+    border-radius: 6px;
+}
+
+div .group-item {
+    display: flex;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums !important;
+}
+
+div .marked, div .group-item-mini-marked {
+    color: gold;
+}
+
+div .group-item-mini {
+    width: 100%;
+    text-align: center;
+    line-height: 1.1;
+    margin-top: -0.2em;
+}
+
+div .group-item-mini span {
+    font-variant-numeric: tabular-nums !important;
+    background-image: linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25));
+    border-radius: 4px;
+    padding: 0.05em 0.25em 0.05em 0.25em;
+    display: inline-block;
+    vertical-align: middle;
+    zoom: 0.75;
+    font-weight: 500;
+    font-size: smaller;
+    opacity: 75%;
+}
+
+div .spacer {
+    line-height: 1;
+    zoom: 0.8;
+}
+
+div .group-item-name {
+    flex-grow: 1;
+    padding-left: 0.2em;   
+}
+
+div .group-item-size {
+    margin-top: -0.03em;
+    padding-right: 0.2em;
+}
+
+div .group-item-size span {
+    background-image: linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25));
+    border-radius: 4px;
+    padding: 0 0.4em 0 0.4em;
+    display: inline-block;
+    vertical-align: middle;
+    zoom: 0.75;
+    font-weight: 600;
+}
+
+div .group-item-marked {
+    padding-right: 0.2em;
+    display: table;
+    zoom: 0.8;
+    font-weight: 900;
+    color: gold;
+}
+div.multiple {
+    zoom: 0.4;
+}
+div .group-item-marked span {
+    margin: 0 auto;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+div .group-item-gaptime {
+    flex-grow: 1;
+    padding-left: 0.2em;    
+}
+
+div .group-item-speed {
+    min-width: 3ch;
+    text-align: right;
+}
+
+div .group-item-speed-delta {
+    min-width: 3ch;
+    text-align: right;
+    padding-right: 0.2em;
+}
+
+.slower {
+    zoom: 0.8 !important;
+    opacity: 1 !important;
+    color: greenyellow;
+}
+
+.faster {
+    zoom: 0.8 !important;
+    opacity: 1 !important;
+    color: red;
+}
+
+div .group-item-power {
+    min-width: 3.5ch;
+    text-align: right;
+    padding-right: 0.2em;   
+}
+
+div .sub {
+    font-size: smaller;
+    line-height: 1;
+    padding-bottom: 0.1em;
+}
+
+div .group-item-speed img {
+    max-width: calc(var(--font-scale) * 5vw);
+    filter: invert(75%);
+    display: inline-block;
+    vertical-align: bottom;
+    padding-left: 0.2em;
+    padding-bottom: 0.1em;
+}
+
+div .group-item-rank img {
+    max-width: calc(var(--font-scale) * 6.5vw);
+    display: inline-block;
+    vertical-align: bottom;
+    padding: 0 0 0.05em 0.2em;
+    margin-right: 0.5em;
+}
+
+div .group-item-maxrank img {
+    max-width: calc(var(--font-scale) * 5vw);
+    display: inline-block;
+    vertical-align: bottom;
+    padding: 0 0 0.15em 0;
+    margin-right: 0.5em;
+    zoom: 0.8;
+    filter: invert(75%);
+}

@@ -1,0 +1,122 @@
+/* Overall dialog style */
+dialog {
+  max-width: 90%;
+  /* Instead of a plain background, match the HUD’s semi-transparent style */
+  background: rgba(0, 0, 0, 0.85);
+  /* Use neon green border, slightly transparent to match HUD */
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 6px;
+  /* Orbitron + neon green text color */
+  font-family: "Orbitron", sans-serif;
+  font-weight: 900;
+  color: #00ff00;
+  padding: 1rem;
+  /* A glowing box-shadow in neon green */
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  margin: 1rem;
+  transform: none !important;
+}
+
+/* Backdrop tint */
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: flex-start; /* align left */
+  align-items: flex-start;     /* align top (optional) */
+}
+
+/* Fade-in animation to match the HUD’s subtle transitions */
+dialog[open] {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dialog heading */
+#config-dialog h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #00ff00; /* Emphasize neon green */
+}
+
+/* Fieldset & label styling to keep consistent spacing and look */
+#config-dialog fieldset {
+  display: flex;
+  flex-direction: row;
+  /* This allows items to wrap if the dialog is too narrow,
+     and ensures there's a little space between items */
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+#config-dialog fieldset legend {
+  margin-bottom: 0.5rem;
+}
+
+#config-dialog fieldset label {
+  display: inline-block; 
+  margin-right: 0.3rem;
+}
+
+#config-dialog label {
+  display: block;
+  margin: 0.3rem 0;
+  font-weight: 600;
+}
+
+/* Buttons in the config dialog should match the HUD’s button styling */
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Base button style (similar to #reset-visibility-btn, etc.) */
+.popup-buttons button,
+#config-dialog button {
+  background: #333;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Button hover effect: neon highlight */
+.popup-buttons button:hover,
+#config-dialog button:hover {
+  background: #00ff00;
+  color: #333;
+}
+
+/* Example color input styling (optional) */
+#config-dialog input[type="color"] {
+  border: 1px solid #00ff00;
+  background: #333;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+  /* Remove default corner radius if you want a sharper look */
+  border-radius: 2px;
+}
+#config-dialog input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+#config-dialog input[type="color"]::-webkit-color-swatch-border {
+  border: none;
+}

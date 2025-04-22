@@ -1,0 +1,58 @@
+.progress-bar {
+    width: 100%;
+    table-layout: auto;
+    font-size: x-small;
+    font-weight: 600;
+}
+
+#total {
+    position: absolute;
+    z-index: 1;
+}
+
+#progress {
+    z-index: 2;
+    width: 100%;
+    border-radius: 4px;
+}
+
+table {
+    width: 100%;
+}
+
+.part {
+    text-align: center;
+    border-radius: 4px;
+    overflow-x: hidden;
+    white-space: nowrap;
+}
+
+.progress {
+    background: linear-gradient(90deg, rgba(37,150,190,1) calc(1% * var(--progressCompleted)), rgba(0,0,0,0.4) calc(100% - 1% * var(--progressToGo)));
+}
+
+.completed {
+    background: rgba(37,150,190,1);
+}
+
+#percentage {
+    float: left;
+}
+
+.part div.distance-togo {
+    float: right;
+    margin-right: 2em;
+}
+
+.part div.finish {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-right: 0.2em;
+    margin-top: 0.4em;
+}
+
+.part img {
+    filter: invert(1);
+    zoom: 3%;
+}

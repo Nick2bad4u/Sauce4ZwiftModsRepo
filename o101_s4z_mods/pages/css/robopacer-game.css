@@ -1,0 +1,15 @@
+#emptyPanel {
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+.zwift-blue {
+    background-color: #2596be;
+}
+.zwift-white {
+    background-color: white;
+}
+.zwift-black {
+    background-color: black;
+}

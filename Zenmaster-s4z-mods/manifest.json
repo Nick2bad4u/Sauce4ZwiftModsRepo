@@ -1,0 +1,200 @@
+{
+    "manifest_version": 1,
+    "name": "Zenmaster",
+    "description": "Arend's Mod Collection for S4Z",
+    "author": "Arend teRaa",
+    "website_url": "https://github.com/Zenmaster28/Zenmaster-s4z-mods",
+    "version": "1.7.0",
+    "content_js": [
+        "pages/src/data-fields.js"
+    ],
+    "content_css": [
+        
+    ],
+    "web_root": "pages",
+    "windows": [
+        {
+            "file": "pages/Active-Powerups-v2.html",
+            "id": "Active Powerups",
+            "name": "Active Powerups",
+            "description": "Show active Powerups in current group",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 100,
+                "height": 450,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/datagrid.html",
+            "id": "data-grid",
+            "name": "Data Grid",
+            "description": "A customizable grid to display any available Sauce data fields",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 200,
+                "height": 175,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/lap-controls.html",
+            "id": "Lap-controls",
+            "name": "Lap controls",
+            "description": "Lap controls",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 200,
+                "height": 175,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/lap-data.html",
+            "id": "Lap data",
+            "name": "Lap data",
+            "description": "Lap data",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 625,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/next-segment.html",
+            "id": "Next Segment profile",
+            "name": "Next segment profile",
+            "description": "Route Profile of the next segment",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 225,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/elevation-segments.html",
+            "id": "Route-Profile with segments",
+            "name": "Route Profile with segments",
+            "description": "Route Profile with segments",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 225,
+                "x": -300,
+                "y": 100
+            }
+        },
+        {
+            "file": "pages/pp-location-makuri.html",
+            "id": "Makuri-pp-locations",
+            "name": "Non Watopia Pace Partners",
+            "description": "Show the route location of the Pace Partners in worlds other than Watopia",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 225,
+                "x": -300,
+                "y": 100
+            }
+        },
+        {
+            "file": "pages/pp-location-watopia.html",
+            "id": "Watopia-pp-locations",
+            "name": "Watopia Pace Partners",
+            "description": "Show the route location of the Watopia Pace Partners",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 225,
+                "x": -300,
+                "y": 100
+            }
+        },
+        {
+            "file": "pages/route-preview-v2.html",
+            "id": "Route-Profile-preview-v2",
+            "name": "Preview any Route Profile",
+            "description": "Preview any Route Profile",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 225,
+                "x": -300,
+                "y": 100
+            }
+        },
+        {
+            "file": "pages/segment-data.html",
+            "id": "segment-data",
+            "name": "Preview any Segment",
+            "description": "Preview any segment with your results from the last 90 days",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 700,
+                "height": 525,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/segment-results.html",
+            "id": "Segment results",
+            "name": "Segment results (deprecated - use multilap)",
+            "description": "Show FTS or FAL results for the segments on a route.",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 500,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/segment-results-all.html",
+            "id": "Segment results multilap",
+            "name": "Segment results Multilap",
+            "description": "Show FTS or FAL results for the segments on a route.",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 500,
+                "x": -300,
+                "y": 100
+            }
+        },        
+        {
+            "file": "pages/points-leaderboard.html",
+            "id": "points-leaderboard",
+            "name": "Points leaderboard",
+            "description": "Show FTS, FAL and FIN point totals for a race.",
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 300,
+                "height": 500,
+                "x": -300,
+                "y": 100
+            }
+        }
+        
+    ]
+}

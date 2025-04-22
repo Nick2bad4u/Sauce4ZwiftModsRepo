@@ -1,0 +1,116 @@
+{
+    "manifest_version": 1,
+    "name": "O101 for S4Z",
+    "description": "Some racing MODs",
+    "author": "Onno Aphinan",
+    "website_url": "https://github.com/O101",
+    "version": "1.7.6",
+    "web_root": "pages",
+    "windows": [
+        {
+            "file": "pages/nearby-race-v2.html",
+            "id": "O101-nearby-race-v2",
+            "name": "O101 - nearby race v2",
+            "description": "Next gen nearby race mod",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 200,
+                "height": 350,
+                "x": 300,
+                "y": 200
+            }
+        },
+        {
+            "file": "pages/groups-race.html",
+            "id": "O101-groups-race",
+            "name": "O101 - groups race",
+            "description": "A groups race mod",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 150,
+                "height": 400,
+                "x": 400,
+                "y": 250
+            }
+        },
+        {
+            "file": "pages/groups-race-horizontal.html",
+            "id": "O101-groups-race-horizontal",
+            "name": "O101 - groups race horizontal",
+            "description": "A groups race mod",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 1000,
+                "height": 50,
+                "x": 400,
+                "y": 250
+            }
+        },
+        {
+            "file": "pages/ladder-race.html",
+            "id": "O101-ladder-race",
+            "name": "O101 - ladder race",
+            "description": "A ladder race mod",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 200,
+                "height": 150,
+                "x": 300,
+                "y": 200
+            }
+        },
+        {
+            "file": "pages/livedata.html",
+            "id": "O101-livedata",
+            "name": "O101 - livedata",
+            "description": "A livedata panel",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 400,
+                "height": 50,
+                "x": -300,
+                "y": 50
+            }
+        },
+        {
+            "file": "pages/overview.html",
+            "id": "O101-overview",
+            "name": "O101 - overview",
+            "description": "An overview panel",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 200,
+                "height": 350,
+                "x": 0,
+                "y": 50
+            }
+        },
+        {
+            "file": "pages/progress-bar.html",
+            "id": "O101-progress-bar",
+            "name": "O101 - progress bar",
+            "description": "Show progress of race/event/route as progress bar",
+            "always_visible": true,
+            "overlay": true,
+            "frame": false,
+            "default_bounds": {
+                "width": 200,
+                "height": 150,
+                "x": 300,
+                "y": 200
+            }
+        }
+    ]
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="settings-page" tabindex="0" data-settings-key="dh-groups-settings-v6">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+
+        <title>MOD: Groups - Settings - Sauce for Zwift™</title>
+
+        <script src="/pages/src/preloads.js"></script>
+
+        <link id="favicon" rel="shortcut icon" href="/pages/images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+
+        <script type="module">
+            import {settingsMain} from './src/groups.mjs';
+            settingsMain();
+        </script>
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img src="/pages/images/icon128.png"/></div>
+                <div class="title">Groups - Settings</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Close this window" class="button close electron-only"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="settings">
+            <form class="section">
+                <label>
+                    <key>Refresh interval:</key>
+                    <input type="number" min="0" step="1" name="refreshInterval"/> <small>(seconds)</small>
+                </label>
+                <label title="When powerful surges are detected attention will be drawn to the group or athlete">
+                    <key>Detect attacks:</key>
+                    <input type="checkbox" name="detectAttacks"/>
+                </label>
+                <label>
+                    <key data-added="2023-03-31">Horizontal mode:</key>
+                    <input type="checkbox" name="horizMode"/>
+                </label>
+                <label class="indent">
+                    <key data-added="2024-12-04">Left-to-Right:</key>
+                    <input data-depends-on="horizMode" type="checkbox" name="horizLTR"/>
+                </label>
+                <label class="indent">
+                    <key data-added="2023-03-31">Label angle:</key>
+                    <input type="range" name="labelAngle" min="0" max="90" value="50" step="1"
+                           data-depends-on="horizMode"/>
+                    <input type="number" name="labelAngle" value="60" style="--size: 5"
+                           data-depends-on="horizMode"/> degrees
+                </label>
+                <label title="Hide the top header containing overall information">
+                    <key data-added="2023-03-31">Hide header:</key>
+                    <input type="checkbox" name="hideHeader"/>
+                </label>
+
+                <hr/>
+                <div class="title">Groups View</div>
+
+                <label>
+                    <key>Groups ahead:</key>
+                    <input type="number" min="1" max="10" step="1" name="maxAhead"/>
+                </label>
+                <label>
+                    <key>Groups behind:</key>
+                    <input type="number" min="1" max="10" step="1" name="maxBehind"/>
+                </label>
+                <label>
+                    <key>Top groups field:</key>
+                    <select name="groupsPrimaryField">
+                        <option value="power">Power</option>
+                        <option value="wkg">W/kg</option>
+                    </select>
+                </label>
+                <label>
+                    <key>Bottom groups field:</key>
+                    <select name="groupsSecondaryField">
+                        <option value="speed">Speed</option>
+                        <option value="draft">Draft</option>
+                        <option value="heartrate">Heart Rate</option>
+                        <option value="power-highest">Highest Power</option>
+                        <option value="power-median">Median Power</option>
+                    </select>
+                </label>
+
+                <hr/>
+                <div class="title">Zoomed View</div>
+
+                <label title="The maximum number of athletes to show while zoomed in">
+                    <key data-added="2023-03-31">Max athletes:</key>
+                    <input type="number" min="1" step="1" name="maxZoomed"/>
+                </label>
+
+                <label>
+                    <key>Top zoomed field:</key>
+                    <select name="zoomedPrimaryField">
+                        <option value="power">Power</option>
+                        <option value="wkg">W/kg</option>
+                    </select>
+                </label>
+                <label>                    
+                    <key>Top zoomed field 2:</key>
+                    <select name="zoomedPrimaryField2">
+                        <option value="none">-</option>
+                        <option value="draft">Draft</option>
+                        <option value="wbal">wBal</option>
+                        <option value="speed">Speed</option>
+                        <option value="heartrate">Heart Rate</option>
+                    </select>                    
+                </label>
+                <label>
+                    <key>Bottom zoomed field:</key>
+                    <select name="zoomedSecondaryField">
+                        <option value="none">-</option>
+                        <option value="wbal">wBal</option>
+                        <option value="speed">Speed</option>
+                        <option value="draft">Draft</option>
+                        <option value="heartrate">Heart Rate</option>
+                        <option value="power-60s">1m Power</option>
+                    </select>
+                </label>
+                <label>                    
+                    <key>Bottom zoomed field 2:</key>
+                    <select name="zoomedSecondaryField2">
+                        <option value="none">-</option>
+                        <option value="wbal">wBal</option>
+                        <option value="speed">Speed</option>
+                        <option value="draft">Draft</option>
+                        <option value="heartrate">Heart Rate</option>
+                        <option value="power-60s">1m Power</option>
+                    </select>                    
+                </label>
+                <label>
+                    <key>Zoomed gap metric:</key>
+                    <select name="zoomedGapField">
+                        <option value="time">Time</option>
+                        <option value="distance">Distance</option>
+                    </select>
+                </label>
+
+                <hr/>
+
+                <label>
+                    <key>Theme override:</key>
+                    <select is="sauce-theme" override></select>
+                </label>
+                <label title="Mostly useful for streamers using OBS window and browser sources">
+                    <key>Solid background:</key>
+                    <input type="checkbox" name="solidBackground"/>
+                </label>
+                <label>
+                    <key>Background color:</key>
+                    <input type="color" name="backgroundColor" data-depends-on="solidBackground"/>
+                    <input type="text" name="backgroundColor" data-depends-on="solidBackground" size="7"/>
+                    <input type="number" title="Opacity" name="backgroundAlpha" data-depends-on="solidBackground"
+                           style="--size: 5" min="0" max="100" value="100"/>%
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

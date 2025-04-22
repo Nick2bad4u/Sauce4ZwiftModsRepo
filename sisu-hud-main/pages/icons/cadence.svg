@@ -1,0 +1,42 @@
+<svg
+  viewBox="0 0 512 512"
+  xmlns="http://www.w3.org/2000/svg"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <!-- Outer chainring circle -->
+  <circle cx="256" cy="256" r="160" />
+
+  <!-- Example "teeth" drawn as short radial lines around the chainring -->
+  <!-- (You can add or remove lines to get a look you prefer.) -->
+  <g stroke-width="16">
+    <!-- For simplicity, just 8 equally spaced lines here -->
+    <line x1="256" y1="96"  x2="256" y2="80"  /> <!-- 12 o'clock tooth -->
+    <line x1="256" y1="416" x2="256" y2="432" /> <!-- 6 o'clock tooth -->
+    <line x1="96"  y1="256" x2="80"  y2="256" /> <!-- 9 o'clock tooth -->
+    <line x1="416" y1="256" x2="432" y2="256" /> <!-- 3 o'clock tooth -->
+    <!-- 45°, 135°, 225°, 315° teeth -->
+    <line x1="150.91" y1="150.91" x2="139.3" y2="139.3" />
+    <line x1="361.09" y1="150.91" x2="372.7" y2="139.3" />
+    <line x1="150.91" y1="361.09" x2="139.3"  y2="372.7" />
+    <line x1="361.09" y1="361.09" x2="372.7"  y2="372.7" />
+  </g>
+
+  <!-- Crank arm at ~2 o’clock -->
+  <!-- This is a simple rectangle + end circle, all rotated around center. -->
+  <!-- Adjust path or transform if you want a more precise shape. -->
+  <g transform="rotate(-60, 256, 256)"> 
+    <!-- The arm itself (a narrow rectangle) -->
+    <rect
+      x="248"  y="256"
+      width="16" height="140"
+      rx="8" ry="8"
+    />
+    <!-- Pedal spindle circle at the tip of the arm -->
+    <circle cx="256" cy="396" r="14" />
+  </g>
+
+  <!-- Inner spider / bolt circle, if desired -->
+  <circle cx="256" cy="256" r="40" stroke-width="12" />
+
+</svg>

@@ -1,0 +1,191 @@
+form label key {
+  display: inline-block;
+  margin-right: 0.4em;
+  min-width: 20ch;
+}
+div .myField {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0.3em 1em;
+  width: fit-content;
+  background-color : hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/var(--dataTransparency));
+  font-variant-numeric: tabular-nums;  
+}
+#content > .fields {  
+  background-color: hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/var(--dataTransparency));  
+}
+div .routeList {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0.3em 1em;
+  width: fit-content;
+  background-color : hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/0.82);
+  font-variant-numeric: tabular-nums;  
+}
+div .segmentInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0em 1em;
+  width: auto;
+  background-color : hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/0.4);
+  font-variant-numeric: tabular-nums;
+}
+div .segmentData {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: left;
+  white-space: nowrap;
+  overflow: hidden;
+  padding: 0em 1em;
+  width: 100%;
+  background-color : hsl(var(--theme-bg-hue) var(--theme-bg-sat) var(--theme-bg-light)/0.4);
+  font-variant-numeric: tabular-nums;
+}
+div .segmentData .data {
+  width: 100%
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  text-align: left;
+}
+input.options {
+  --size: 9
+}
+.poi-box {
+  position: absolute;
+  display: none;      
+  width: 150px;
+}
+.poi-input {
+  width: inherit;
+}
+.pin-path {
+  fill: red;
+  width: 100%;
+  height: 100%;
+  background-color: white;  
+}
+.pin-container {  
+  height: 50px;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+}
+.pinSettings {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+}
+.pinList {
+  display: flex;
+  flex-wrap: wrap;
+  
+}
+
+.pin {  
+  width: auto;
+  height: 50px;
+  margin: 2px;
+  cursor: pointer;
+  background-size: cover;
+}
+.selected {
+  border: 2px solid red;
+}
+.segmentTable tr, td {
+  padding-bottom: 0.4em;
+}
+.segmentTable th:first-child, td:first-child,
+th:last-child, td:last-child {
+  width: 1%; 
+  padding-right: 10px;
+  text-align: left;
+}
+
+.segmentTable th, td {
+  width: auto; 
+  max-width: 100px;
+  overflow: hidden;  
+  text-align: left;
+}
+.segmentList {
+  padding: 0.5em 0.8em;  
+  overflow: auto;
+}
+.segmentContent {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  text-align: left;
+  font-variant: tabular-nums;
+  font-size: calc(var(--font-scale) * 1em);
+}
+.segmentContent > .elevation-profile {
+  --profile-height: 0.20;
+  flex: 0 0 auto;
+  position: absolute;
+  font-size: clamp(16px, var(--profile-height) * 30vh + 10px, 60px);
+  left: 0;
+  bottom: 0;
+  z-index: 10000;
+  pointer-events: none;
+  transform: translateZ(0);
+  height: calc(var(--profile-height) * 100%);
+  width: 50% !important;
+  overflow: hidden;
+}
+.segmentContent > .elevation-profile svg > g {
+  pointer-events: all;
+}
+.segmentContent > .map {
+  flex: 1 1 0;
+  width: 101% !important;
+  height: 100%;
+}
+
+#resultsTable {
+  width: 95%;
+  border-collapse: collapse;
+}
+
+#resultsTable th, #resultsTable td {
+  border: 1px solid #ddd;  
+  text-align: left;
+}
+#resultsTable td:first-child, #resultsTable th:first-child {
+  width: 25%;
+}
+
+#resultsTable td:nth-child(2), #resultsTable th:nth-child(2),
+#resultsTable td:nth-child(3), #resultsTable th:nth-child(3) {
+  width: 15%;
+}
+
+#resultsTable td:last-child, #resultsTable th:last-child {
+  width: 45%;
+}
+#stats {
+  overflow-y: auto;
+}
+.puImg {
+  width: 30px;
+  vertical-align: middle;
+}
+#xAxis {
+  width: 100%;
+  height: 30px;
+}

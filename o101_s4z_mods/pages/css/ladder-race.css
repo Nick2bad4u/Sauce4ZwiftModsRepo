@@ -1,0 +1,88 @@
+
+div .ladderheader {
+    font-size: larger;
+    line-height: 1.2;
+    color: black;
+    font-weight: 700;
+}
+
+#myTeam {
+    background-image: linear-gradient(#fff, #fff);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom: darkgray 1px solid;
+    padding-left: 0.2em;
+    font-variant-numeric: tabular-nums !important;
+}
+
+#opponentTeam {
+    background-image: linear-gradient(#fff, #fff);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding-left: 0.2em;
+    font-variant-numeric: tabular-nums !important;
+}
+
+#myTeam span:nth-of-type(2), #opponentTeam span:nth-of-type(2) {
+    float: right;
+    padding-right: 0.2em;
+}
+
+#eventInfo {
+    color: white;
+    padding-left: 0.2em;
+}
+
+div .info-item-ladder-gap {
+    font-size: smaller;
+    max-width: 3em;
+    text-align: right;
+    overflow: hidden;
+    padding-right: 0.4em;
+}
+div .info-item-ladder-title {
+    font-size: smaller;
+    flex-grow: 1;  
+    overflow: hidden;
+    padding-left: 0.2em;
+}
+div .info-item-ladder-speed {
+    font-size: smaller;
+    min-width: 2em;
+    text-align: right;
+}
+div .info-item-ladder-speed img {
+    max-width: calc(var(--font-scale) * 6vw);
+    filter: invert(5%);
+    display: inline-block;
+    vertical-align: bottom;
+    padding-left: 0.1em;
+    padding-right: 0.2em;
+    padding-bottom: 0.25em;
+}
+div .info-item-speed-delta {
+    min-width: 1.5em;
+    text-align: right;
+    padding-right: 0.2em;
+    margin-top: -0.2em;
+}
+
+.slower {
+    zoom: 0.6 !important;
+    opacity: 1 !important;
+    color: greenyellow;
+}
+
+.faster {
+    zoom: 0.6 !important;
+    opacity: 1 !important;
+    color: red;
+}
+
+div .ladder {
+    background-color: lightgray !important;
+    color: black;
+    font-weight: 700;
+    font-size: larger;
+    line-height: 1.2;
+}
