@@ -1,6 +1,6 @@
 remote_theme: pages-themes/hacker@v0.2.0
-title: Nick2bad4u / Typpi.online Userstyles
-description: UserStyle collection made by Typpi / Nick2bad4u
+title: Repo for Sauce4Zwift Mods
+description: A collection of mods for Zwift, including the Zwift Launcher and other tools.
 url: "https://SauceMods.typpi.online" # the base hostname & protocol for your site
 plugins:
   - jekyll-sitemap
