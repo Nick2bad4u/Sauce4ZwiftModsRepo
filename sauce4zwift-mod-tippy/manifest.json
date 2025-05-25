@@ -1,8 +1,8 @@
 {
     "manifest_version": 1,
     "name": "Brian Mudge MODs for S4Z",
-    "description": "Brian's Mod Collection for S4Z",
-    "author": "Brian Mudge",
+    "description": "Brian's Mod Collection for S4Z [Improved by Nick]",
+    "author": "Nick",
     "website_url": "https://www.sauce.llc",
     "version": "0.2.9",
     "content_css": [

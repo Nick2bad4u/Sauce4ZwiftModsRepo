@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" class="settings-page" tabindex="0" data-settings-key="DSNotes-settings-v1">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+        
+        <link id="favicon" rel="shortcut icon" href="../../../../images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+        <!-- <link rel="stylesheet" href="../css/settings.css"/> -->
+
+        <title>BM: DS Notes - Settings</title>
+
+        <script type="module">
+            import {main} from '../src/BM/settings.mjs';
+            main('DSNotes-fields-v2');
+        </script>
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img src="/pages/images/icon128.png"/></div>
+                <div class="title">BM: DS Notes - Settings</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Close this window" class="button close electron-only" onclick="window.close()"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="settings">
+            <form id="options" class="section">
+                <div class="title">Window Settings</div>
+                <label>
+                    <key>Font scaling:</key>
+                    <input type="range" name="fontScale" min="0.2" max="2" step="0.05"/>
+                    <input type="number" name="fontScale" min="0.2" max="2" step="0.05" style="--size: 5"/>
+                </label>                
+                <label>
+                    <key>Theme override:</key>
+                    <select is="sauce-theme" override></select>
+                </label>
+                <label title="Mostly useful for streamers using OBS window and browser sources">
+                    <key>Solid background:</key>
+                    <input type="checkbox" name="solidBackground"/>
+                </label>
+                <label>
+                    <key>Background color:</key>
+                    <input type="color" name="backgroundColor" data-depends-on="solidBackground"/>
+                    <input type="text" name="backgroundColor" data-depends-on="solidBackground" size="7"/>
+                </label>
+                <div class="title">Segment Settings</div>
+                <label>
+                    <key>Show Notes (Segments):</key>
+                    <input type="checkbox" name="showNotesSegments"/>
+                </label>
+                <label>
+                    <key>Auto hide segments:</key>
+                    <input type="checkbox" name="autoHideSegments"/>
+                </label>
+                <label>
+                    <key>Auto hide distance (km):</key>
+                    <input type="number" name="autoHideDistance" min="1" max="30" step="1" style="--size: 5"/>
+                </label>                
+                <div class="title">Rider Settings</div>
+                <label>
+                    <key>riderList Refresh Rate:</key>
+                    <input type="range" name="riderRefreshRate" min="1" max="30" step="1"/>
+                    <input type="number" name="riderRefreshRate" min="1" max="30" step="1" style="--size: 5"/>
+                </label>                
+                <label>
+                    <key>20min Power:</key>
+                    <input type="checkbox" name="show20MinPower"/>
+                </label>
+                <label>
+                    <key>Heart Rate:</key>
+                    <input type="checkbox" name="showHR"/>
+                </label>
+                <label>
+                    <key>Marked riders:</key>
+                    <input type="checkbox" name="showMarkedRiders"/>
+                </label>
+                <label>
+                    <key>Team riders:</key>
+                    <input type="checkbox" name="showTeamRiders"/>
+                </label>
+                <label>
+                    <key>Show Notes (riderList):</key>
+                    <input type="checkbox" name="showNotesRiderList"/>
+                </label>
+                <label>
+                    <key>Distance Calculation</key>
+                    <select name="distanceCalculation">
+                        <option value="ridden">Ridden</option>
+                        <option value="routePosition">Route Position</option>
+                    </select>
+                </label>
+            </form>
+            <form id="fields" class="section">
+            </form>
+        </div>
+    </body>
+</html>

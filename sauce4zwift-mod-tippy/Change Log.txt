@@ -1,0 +1,196 @@
+Change Log for "Brian Mudge MODs for S4Z"
+
+Planned / ToDo
+	- DS Notes - Make segment notes editable
+	- DS Notes - Hide segments that riderList has completed. (Tickbox in settings)
+	- DS Notes - Take into account custom finishes
+	- EFT - remainingType: undefined
+	- EFT - Change colour of firstrider if S4Z can't see them
+	- EFT - Need to be able to determine the current Lap, on a multi lap race.
+	- EFT - If no eventPosition, then filter on subgroup & firstDistance > watchDistance (or within 1000m) - (x >= 0.001 && x <= 0.009)
+
+
+v0.2.9
+	- DS Notes - Found end cases where no route segment data. If this is the case I now show the riderList without route related fields.
+	- DS Notes - Strike-Through segments that visible riders, in the riderList (minDistance rider), have completed. Hide the segment row if 10km further back from the minDistance.
+	- DS Notes - Added settings for autoHideSegments & autoHideDistance.
+	- DS Notes - Rearranged the settings page.
+
+v0.2.8
+	- DS Notes - currentPosition can be a lot less than ridden distance - If currentPosition is over 400m less than ridden distance, I take ridden distance, if in an "Event"
+	- External Data - Added Hilltop Hustle Route data.
+	- External Data - Added new France rotes (Croissant, Gentil 8, Hell of the North, Bon Voyage, Three Musketeers, Knights of the Roundabout, Sacre Bleu).
+	- DS Notes - Split out the "Notes" from 'dataLookup.mjs' into a separate 'notesLookup.mjs' file.
+	- DS Notes - Added segment data for new France routes.
+
+v0.2.7
+	- DS Notes - Added "Mech Isle Climb CW" to "Makuri Madness" route
+	- DS Notes - "Finish Line" should only appear if the finish is after the last segment.
+	- DS Notes - Removed "The Grade KOM - Upper Portion" from "Radio Rendezvous".
+	- DS Notes - Added "Finish Line" record if no route segments
+	- DS Notes - Started the background work to determine the DistanceToGo to the next segment (Starting with Watched Rider)
+	- DS Notes - Added option to show route currentPosition instead of distance ridden.
+
+v0.2.6
+	- DS Notes - Added customSegment "Ramp out of Desert". Added it to Tick Tock
+	- DS Notes - Added Notes for the South Coast sprints
+	- DS Notes - Added "Finish Line" entry for segments
+	- DS Notes - Added External Route lookup, back in (From EFT) - Needed for Danger Noodle
+	- External Data - Added Zwift Games 2025 Routes.
+	- DS Notes - Added HR field, with Zone colours
+		Z1	Recovery		0 - 80%		Blue
+		Z2	Aerobic			81% - 89%	Green
+		Z3	Tempo			89% - 93%	Yellow
+		Z4	SubThreshold		93% - 99%	Orange
+		Z5	SuperThreshold		100% - 102%	Red
+		Z6	Aerobic Capacity	103% - 105%	White/Purple
+		Z7	Anaerobic		106%+		White/Red (Flash)
+	- DS Notes - Added retry interval & max retries for external lookup
+	- EFT - Added retry interval & max retries for external lookup
+
+v0.2.5
+	- DS Notes - Added ability to display "Notes" for segments (Show/Hide in settings)
+	- DS Notes - Added customSegment "Rooftop KOM Reverse" for Makuri Islands
+	- DS Notes - Added "Shisha Shakedown"
+
+v0.2.4
+	- DS Notes - Added a status bar - Includes Game Connection status (Coloured) & Route name.
+	- DS Notes - Corrected maxGrade for "NEW YORK KOM" (from 14.2% to 17.0%)
+	- DS Notes - Added customSegment "Harlem Hill + Sky Road Climb" for the "NYC KOM After Party" route
+	- DS Notes - Added customSegment "Kicker to Park Finish" for New York
+
+v0.2.3
+	- DS Notes - Click on a rider to switch to them (Requires "Game Connection" to be enabled).
+	- DS Notes - Cleaned up a lot of the console logging messages.
+	- DS Notes - Coloured the "Watched" rider as green.
+
+v0.2.2
+	- DS Notes - KOM's called "KOM" - create a function call correctZwiftSegmentNames() - Created for Innsbruck KOM, Richmond KOM & KOM Reverse
+	- DS Notes - riderList always shows the "Watched" rider, but you can now select to included Marked. You can also include riders with the same Team as the watched rider.
+
+v0.2.1
+	- EFT - Made Terrain array data lowercase and updated the filter to look for lowercase Route Names.
+	- DS Notes - Added CSS "font-variant" to riderList.
+	- DS Notes - Added Peak 20 minute WKG, to the riderList. Yellow = Smooth / Green = Peak (Can Show/Hide in settings)
+	- DS Notes - Added "Jungle to Windmill Climb" segment.
+	- DS Notes - Added riderList refreshRate.
+
+v0.2.0
+	- DS Notes - "Road To Ruins Reverse" (ZRL Route) didn't filter correctly - Stupid Zwift and it's character case inconsistencies.
+		   - Changed my customRouteSegments names to be all lowercase and then filter the route name as lowercase also.
+
+v0.1.9
+	- DS Notes - Added customSegments for New York routes (Had to rename "The Uber Pretzel" route - it had an accented "U" in it)
+	- DS Notes - Finished adding customSegments for Watopia Routes
+	- DS Notes - Added customSegments for London. 
+	- DS Notes - Finished up Richmond & Makuri
+	- DS Notes - Changed marked rider distance to 2 decimal places.
+
+v0.1.8
+	- DS Notes - Added segments for ZRL "Road to Ruins Reverse"
+	- DS Notes - Added more customSegments for Yorkshire - "Otley Rd Climb", "Otley Road Kicker (West Bound)"
+	- DS Notes - Added more customeSegments for Watopia - "Jungle Climb", "Jungle CCW Climb"
+	- DS Notes - Added more customeSegments for Scotland = "Castle Loop Climb"
+
+v0.1.7
+	- DS Notes - added customSegments for France - "Les Intestins - Outbound", "Les Intestins - Inbound", "Start Pens Lead-In to Petit KOM Banner"
+	- DS Notes - added customSegments for Richmond - "Governor St Climb", "E Main St Climb"
+	- DS Notes - Take into account Multi laps
+
+v0.1.6
+	- DS Notes - Add Festival Climb segment to "Island Hopper" route.
+	- DS Notes - Added Dirty Sorpresa Climb to "The Magnificent 8"
+	- DS Notes - Allow for multi custom segments on a route
+
+v0.1.5
+	- DS Notes - Added jsonCustomRouteSegments
+	- DS Notes - jsonOtherClimbs
+	- DS Notes - Added the coding to lookup the details for other climbs, for some routes 
+			(Ocean Lava Cliffside Loop, Makuri 40, Turf N Surf, Snowman, Island Hopper, Mech Isle Loop, Makuri Pretzel)
+	- DS Notes - Current custom segments. Maybe not all routes that use them.
+			(Epic KOM - Start to Bypass Intersection, Epic KOM Reverse - Start to Jungle Intersection, Pain Cavern Climb)
+			(Connector Canyon Climb, Festival Harbor Climb CCW, Festival Harbor Climb CW, Mech Isle Climb CW, Dirty Sorpresa Climb)
+	- DS Notes - Added Marked rider list, with their next segment.
+
+v0.1.4
+	- DS Notes - Display routeSegments with name  startDistance / finishDistance / Length / avgGrade / maxGrade
+	- DS Notes - maxGrade is taken from Strava data
+	- DS Notes - Added fontscaling
+
+v0.1.3
+	- Updated a second instance where firstRider.remaining might be null
+	- Bug fixes related to external route lookups of unknown routes (routeid = null or 0)
+
+v0.1.2
+	- Updated ZRA Routes.
+	- With the help of @Arend the font scaling and transparency is now working.
+
+v0.1.1
+	- Added show/hide checkboxes for firstRider & cutTime.
+	- Added external route lookup (for if a new route isn't in S4Z or Zenmaster)
+
+v0.1.0
+	- Keep Target Finish Time on Refresh
+	- Added settings so you can change the background.
+
+v0.0.9
+	- Shortened names to sanitizedFullname
+	- Reducing the height of the window now removes the first and then cut sections
+	- Reducing the width of the window now shortens the Label Key width
+
+v0.0.8
+	- Updated ZRA Routes.
+	- For timed events (IE 60 minutes) - Show Remaining Minutes & Est Finish Distance.
+	- Changed non-input fields to "<div>" with class="info-item-value"
+	- Move my "common" functions into a new common.mjs file.
+
+v0.0.7
+	- Updated ZRA Routes.
+	- Added percentage calculation for Distance & Ascent
+	- Added event data - calcLaps / totalDistance / totalAscent
+	- Backend work getting the "Event" information
+	- Add code for determine the approx. totalDistance, if the event and route information is not available.
+
+v0.0.6
+	- Add a FIFO buffer to determine average for the last 50 records (Might be used, as Salt, for Climbs and Descents)
+	- Made improvements to determining the firstRider - Especially for Races where A, B, C... Cats merge once out of the Pens
+	  IE Multiple eventSubgroupId's
+	- Change "Not a distance event" to Black, non Bold
+	- Updated ZRA Routes.
+
+v0.0.5
+	- Math.round cutOffPercent (Make sure it doesn't calculate to 7.00000000001% again).
+	- Put a lot of work into tracking who is the firstRider, as sone events don't give the riders position. If not given I set to 9999.
+	- Determine how 1st rider is generated (eventPosition=1 or by subgroup) - Need this for last recorded cutTime - Track firstRider till 100m to go
+	- Keep the last recorded "cutTime" till the end of a Race. Track watchRider till 100m to go.
+	- Added "Reload/Refresh" button to the Titlebar, for App window only.
+
+v0.0.4
+	- Added routeLookup. Can now get route name, ascent, distance type information.
+		- Determine route name. - "const route = await common.rpc.getRoute(info.state.routeId);"
+	- Added routeTerrain - Can now determine if Flat, Rolling, Hilly or Mountanous
+	- Added routeCutTimes - One JSON per Terrain type
+	- Added code to lookup cutTime based on terrain and average speed
+	- Given up on logging the data - Too hard for now
+	- Removed access to setting page.
+
+v0.0.3
+	- Added Settings page (html only - SauceMods\BrianMudge\pages\settings\estimatedFinish.html)
+	- Added Setting icon to titlebar of main estimatedFinish-v1.html
+	- Hide 1st rider fields if no 1st rider in the event (Eg TTT)
+	- Changed firstRider to first Rider within the same eventSubGroup (Zwift Category)
+	- Made a function to Clear & Hide the first rider fields - Use this function in multiple places now.
+
+v0.0.2
+	- estimatedFinish.mjs - Changed "function minsToHHMMSS" to process minutes as a Math.abs value (Trying to fix 0-0:59:40 type cutDelta)
+	- estimatedFinish.mjs - Changed cutDelta to bold.
+	- estimatedFinish.mjs - Added "function hhmmssToMinutes".
+	- estimatedFinish.mjs - Added color change for "watchEstimatedFinishTime" based on value of "watchTargetHHMMSS"
+	- estimatedFinish.mjs - Validate the input of "watchTargetHHMMSS". Change color to Red if invalid.
+	- Manifest.json - Changed width from 100 to 400.
+	- estimatedFinish-v1.html - Changed "Cut Minutes" to "Cut Finish Time"
+	- estimatedFinish-v1.html - Added input for "watchTargetHHMMSS"
+	- estimatedFinish-v1.html - Changed "size" of most fields to 10.
+
+v0.0.1
+	- Initial working release
