@@ -765,6 +765,7 @@ export function getxCoord(watching, routeInfo) {
 
 
 function supplimentPath(worldMeta, curvePath, {physicsSlopeScale}={}) {
+    console.log("using zen.supplimentPath")
     const balancedT = 1 / 125; // tests to within 0.27 meters (worst case)
     const distEpsilon = 1e-6;
     const elevations = [];
@@ -1096,6 +1097,7 @@ async function getExitPathDistance(exitPath, route, worldMeta) {
         exitRoute.curvePath.extend(x.reverse ? seg.toReversed() : seg);
     }
     const supPath = common.supplimentPath || supplimentPath;
+    console.log(supPath)
     Object.assign(exitRoute, supPath(worldMeta, exitRoute.curvePath));
     if (exitRoute.distances.length > 0) {
         return {
@@ -1120,6 +1122,7 @@ async function measureRoadLength(manifestEntry, courseId) {
     const worldList = await common.getWorldList();
     const worldMeta = worldList.find(x => x.courseId === courseId);
     const supPath = common.supplimentPath || supplimentPath;
+    console.log(supPath)
     const manifestData = supPath(worldMeta, seg);
     return manifestData.distances.at(-1);
 }
@@ -1357,7 +1360,16 @@ export async function getModifiedRoute(id, disablePenRouting) {
                 //console.log(route.manifest)
                 const worldList = await common.getWorldList();
                 const worldMeta = worldList.find(x => x.courseId === route.courseId);
+                let portalRoute = route.hasPortalRoad == 1 ? true : false;
+                //let portalRoads;
                 //debugger
+                if (portalRoute) {
+                    console.log("Route uses a climb portal");
+                    //const portalManifest = await getPortalManifest(route);
+                    //portalRoads = await common.getRoads("portal")
+                    //debugger
+                }
+                console.log(route)
                 for (const [i, x] of route.manifest.entries()) {
                     const road = await common.getRoad(route.courseId, x.roadId);
                     const seg = road.curvePath.subpathAtRoadPercents(x.start, x.end);
@@ -1371,6 +1383,8 @@ export async function getModifiedRoute(id, disablePenRouting) {
                     route.curvePath.extend(x.reverse ? seg.toReversed() : seg);
                 }
                 const supPath = common.supplimentPath || supplimentPath;
+                //console.log(supPath)
+                //Object.assign(route, supPath(worldMeta, route.curvePath));
                 Object.assign(route, supPath(worldMeta, route.curvePath));
             }
                        
@@ -1434,6 +1448,7 @@ export async function getSegmentPath(id) {
             //debugger
         }
         const supPath = common.supplimentPath || supplimentPath;
+        console.log(supPath)
         Object.assign(segment, supPath(worldMeta, segment.curvePath));
     }
     return segment;
@@ -2331,6 +2346,7 @@ export async function validateManifest(route) {
                 route.lapFiller.curvePath.extend(x.reverse ? seg.toReversed() : seg);
             }
             const supPath = common.supplimentPath || supplimentPath;
+            console.log(supPath)
             Object.assign(route.lapFiller, supPath(worldMeta, route.lapFiller.curvePath));
         }
         route.lapFiller.manifest = lapFiller;
@@ -2618,7 +2634,7 @@ async function isBannerNearby(lastManifestEntry, courseId, type) {
                 });
                 //debugger
                 //console.log("Changing", type, " manifest entry to ", closestSegment.name, "banner.  From", lastManifestEntry.start, "to", addSmallIncrement(closestSegment.roadFinish, -1))
-                if (closestSegment.roadFinish < lastManifestEntry.end) { // make sure the segment isn't behind the pen
+                if (closestSegment.roadFinish < lastManifestEntry.end && lastManifestEntry.reverse == closestSegment.reverse) { // make sure the segment isn't behind the pen and the roads are going in the same direction
                     lastManifestEntry.start = addSmallIncrement(closestSegment.roadFinish, -1) // just past the banner to avoid duplicate segment detection
                 }
             } else {                
@@ -3204,6 +3220,7 @@ export async function findPathFromAtoB(startPoint, endPoint, intersections, allR
     const worldList = await common.getWorldList();
     const worldMeta = worldList.find(x => x.courseId === courseId);
     const supPath = common.supplimentPath || supplimentPath;
+    console.log(supPath)
     const manifestData = supPath(worldMeta, seg);
     return manifestData.distances.at(-1);
 }
@@ -3377,4 +3394,101 @@ export function isTeammate(athlete, teamMatches, watchingTeam, options = { parti
 
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function getPortalManifest(route) {
+    const intersections = await fetch(`data/worlds/${route.worldId}/roadIntersections.json`).then(response => response.json());
+    const decisions = await fetch(`data/worlds/${route.worldId}/routeDecisions.json`).then(response => response.json()).then(routes => routes.find(x => parseInt(x.id) == route.id));
+    //route.decisions = decisions;
+    let portalRoadIntersections = intersections.filter(x => x.intersections?.some(y => y.forward.find(z => z.option.turnText == "Climb Portal") || y.reverse.find(z => z.option.turnText == "Climb Portal")))
+    let portalDecisions = [];
+    let portalIntersections = [];
+    for (let road of portalRoadIntersections) {
+        const roadPortalIntersections = road.intersections.filter(x => x.forward.some(y => y.option.turnText == "Climb Portal") || x.reverse.some(y => y.option.turnText == "Climb Portal"))
+        if (roadPortalIntersections.length > 0) {
+            portalIntersections = roadPortalIntersections;
+            for (let intersection of roadPortalIntersections) {
+                const optionForward = intersection.forward.find(x => x.option.turnText == "Climb Portal");
+                const optionReverse = intersection.reverse.find(x => x.option.turnText == "Climb Portal");
+                const option = optionForward ? optionForward : optionReverse;
+                console.log(intersection)
+                option.option.markerId = intersection.m_markerId.toString();
+                option.option.exitRoad = road.id;
+                option.option.exitForward = optionForward ? true : false;
+                /*
+                let portalIntersection = {
+                    markerId : intersection.m_markerId.toString(),
+                    forward: option.option.forward ? "1" : "0",
+                    turn: option.option.alt == 262 ? "0" : option.option.alt == 263 ? "1" : "3",
+                    road: option.option.road
+                }
+                */
+                portalDecisions.push(option.option)
+            }
+        }        
+    }
+    const portalDecision = decisions.decisions.find(x => portalDecisions.flatMap(x => x.markerId).includes(x.markerId));
+    const decisionIntersection = portalDecisions.find(x => x.markerId == portalDecision.markerId);
+    const intersectionManifest = route.manifest.find(x => x.roadId == decisionIntersection.exitRoad && x.reverse != decisionIntersection.exitForward);
+    const intersectionManifestIdx = route.manifest.indexOf(intersectionManifest);
+    if (intersectionManifest.reverse) {
+        intersectionManifest.start = decisionIntersection.exitTime;
+    } else {
+        intersectionManifest.end = decisionIntersection.exitTime;
+    }
+    const road1 = await common.getRoad(route.courseId, decisionIntersection.exitRoad)
+    const road2 = await common.getRoad(route.courseId, decisionIntersection.road)
+    const entryPoint = getNearestPoint(road1, road2, decisionIntersection.exitTime, 5000)
+    const nextRoadIntersections = intersections.find(x => x.id == decisionIntersection.road)
+    const nextRoadOption = decisionIntersection.forward ? nextRoadIntersections.intersections[0].forward[0].option : nextRoadIntersections.intersections[0].reverse[0].option
+    const nextRoad = {
+        roadId: decisionIntersection.road,
+        reverse: decisionIntersection.forward ? false : true,
+        start: decisionIntersection.forward ? entryPoint : nextRoadOption.exitTime,
+        end: decisionIntersection.forward ? nextRoadOption.exitTime : entryPoint
+    }    
+    const road3 = await common.getRoad(route.courseId, decisionIntersection.road)
+    const road4 = await common.getRoad(route.courseId, nextRoadOption.road)
+    const entryPoint2 = getNearestPoint(road3, road4, nextRoadOption.exitTime, 5000)
+    const nextNextRoad = {
+        roadId: nextRoadOption.road,
+        reverse: nextRoadOption.forward ? false : true,
+        start: nextRoadOption.forward ? entryPoint2 : 1,
+        end: nextRoadOption.forward ? 1 : entryPoint2
+    }
+    route.manifest.splice(intersectionManifestIdx + 1, 0, nextRoad);
+    route.manifest.splice(intersectionManifestIdx + 2, 0, nextNextRoad)
+    const activePortalRoad = await getCurrentPortalRoad(route);
+    const portalRoadManifest = {
+        roadId: activePortalRoad,
+        reverse: false,
+        start: 0,
+        end: 1,
+        portalRoad: true
+    }
+    const portalRoadManifestDown = {
+        roadId: activePortalRoad,
+        reverse: true,
+        start: 0,
+        end: 1,
+        portalRoad: true
+    }
+    route.manifest.splice(intersectionManifestIdx + 3, 0, portalRoadManifest)
+    route.manifest.splice(intersectionManifestIdx + 4, 0, portalRoadManifestDown)
+    //debugger
+    return portalDecisions;
+}
+
+async function getCurrentPortalRoad(route) {
+    const portalSchedule = await fetch(`data/portalSchedule.json`).then(response => response.json())
+    const thisWorldSchedule = portalSchedule.schedule.filter(x => x.world == route.worldId);
+    thisWorldSchedule.sort((a, b) => a.startTS - b.startTS);
+    let activePortalRoad;
+    const now = Date.now();
+    for (let i = 1; i < thisWorldSchedule.length; i++) {
+        if (thisWorldSchedule[i].startTS >= now && thisWorldSchedule[i - 1].startTS < now) {
+            activePortalRoad = thisWorldSchedule[i - 1].road;
+        }
+    }
+    return parseInt(activePortalRoad)
 }
