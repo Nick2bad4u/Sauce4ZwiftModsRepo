@@ -1,8 +1,9 @@
 A better nearby riders MOD for Sauce for Zwift™
 ===========
 
-You need to place this Sauce for Zwift "Mod" into this directory ~/Documents/SauceMods/O101
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/oaphinan)
 
+You need to place this Sauce for Zwift "Mod" into this directory ~/Documents/SauceMods/O101
 
 Changelog for 0.0.3
 

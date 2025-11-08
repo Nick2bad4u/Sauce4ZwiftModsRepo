@@ -114,7 +114,7 @@ export function toggleElementClass(el, cls, force) {
 }
 
 export function getWkgColorCss(wkg) {
-    const n = wkg.replace(',', '.')
+    const n = wkg+''.replace(',', '.')
 
     if (n>=11) {
         return 'purple';

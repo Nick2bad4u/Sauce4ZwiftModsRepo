@@ -64,13 +64,15 @@ const createRider = (athlete) => {
     
     if (athlete.athlete == null) return rider;
 
-    let teamBadgeOverride = '';
+    const overrider = o101Common.getOverRider(rider.id);
+
+    let teamBadgeOverride = (overrider!= null) ? overrider.team : '';
     let teamColorsOverride = null;
     if (settings.nearby.frrMode.enabled) {
-        rider.fhrc = teamBadgeOverride = o101Common.frrCategory(athlete);
+        rider.fhrc = o101Common.frrCategory(athlete);
+        teamBadgeOverride = settings.nearby.frrMode.myFhrcBadgeAsClass ? rider.fhrc.class : rider.fhrc.code;
 
-        if (rider.fhrc == settings.nearby.frrMode.myFhrc) {
-            //teamColorOverride = settings.nearby.frrMode.myFhrcTextColor;
+        if (rider.fhrc.code == settings.nearby.frrMode.myFhrc) {
             teamColorsOverride = {
                 textColor: settings.nearby.frrMode.myFhrcTextColor,
                 backgroundColor: settings.nearby.frrMode.myFhrcBackgroundColor
@@ -79,12 +81,17 @@ const createRider = (athlete) => {
     }
 
     rider.watching = athlete.watching;
-    rider.name = settings.nearby.showFullName ? o101Common.fmtFullName(athlete) : o101Common.fmtName(athlete);
     rider.team = o101Common.fmtTeamBadgeV2(athlete, true, teamBadgeOverride, teamColorsOverride);
     rider.flag = o101Common.fmtFlag(athlete);
     rider.type = o101Common.getAthleteType(athlete);
     rider.distance = o101Common.formatNumber(athlete.state.distance/1000, 1) + '<abbr>km</abbr>';
     rider.racingScore = o101Common.fmtRacingScore(athlete);
+
+    if (overrider!= null) {
+        rider.name = overrider.alias;
+    } else {
+        rider.name = settings.nearby.showFullName ? o101Common.fmtFullName(athlete) : o101Common.fmtName(athlete);
+    }
 
     if (settings.nearby.tttMode.enabled) {
         const tttRider = settings.nearby.tttMode.riders.find(r => r.id == rider.id);
@@ -109,7 +116,7 @@ common.settingsStore.setDefault({
     nearbyRidersFooterText: '',
     showNearbyRidersFullName: false,
     showNearbyRidersMarked: 'marked',
-    maxNearbyRiders: 4,
+    maxNearbyRiders: 6,
     nearbyUpdateOnAttack: false,
     updateOnAttackMinWkg: 5,
     nearbyHidePosition: false,
@@ -131,6 +138,7 @@ export async function main() {
     common.subscribe('nearby', onNearbyInfo);
     common.settingsStore.addEventListener('changed', render);
     o101Common.initTeamColors();
+    o101Common.initOverRiders();    
     document.querySelector('#ridersList').addEventListener('click', clickNearbyRider);
     o101Common.initNationFlags();
 
@@ -187,7 +195,8 @@ function updateSettings() {
             myFhrcOnly: common.settingsStore.get('frrMyFhrcOnly'),
             myFhrcTextColor: common.settingsStore.get('frrTextColor'),
             myFhrcBackgroundColor: common.settingsStore.get('frrBackgroundColor'),
-            myFhrcFooter: common.settingsStore.get('frrMyFhrcFooter')
+            myFhrcFooter: common.settingsStore.get('frrMyFhrcFooter'),
+            myFhrcBadgeAsClass: common.settingsStore.get('frrMyFhrcBadgeAsClass')
         }        
     }
 
@@ -245,15 +254,15 @@ function handleNearbyInfo(info) {
     }
 
     if (settings.nearby.frrMode.enabled && settings.nearby.frrMode.myFhrcFooter) {
-        const myFhrcNearbyRiders = nearby.filter(x => o101Common.frrCategory(x)==settings.nearby.frrMode.myFhrc)
+        const myFhrcNearbyRiders = nearby.filter(x => o101Common.frrCategory(x).code==settings.nearby.frrMode.myFhrc)
 
         state.footer = myFhrcNearbyRiders.length + ' riders in ' + settings.nearby.frrMode.myFhrc
     }
 
     const nearbyRiders = nearby
         .filter(x => x.watching || nearbyRiderTypes.includes(o101Common.getAthleteType(x)))
-        .optionalFilter(settings.nearby.frrMode.enabled && settings.nearby.frrMode.myFhrcOnly, x => o101Common.frrCategory(x)==settings.nearby.frrMode.myFhrc)
-        .optionalFilter(settings.nearby.markedRiders=='only', x => (x.athlete!=null && x.athlete.marked) || x.watching)
+        .optionalFilter(settings.nearby.frrMode.enabled && settings.nearby.frrMode.myFhrcOnly, x => o101Common.frrCategory(x).code==settings.nearby.frrMode.myFhrc)
+        .optionalFilter(settings.nearby.markedRiders=='only', x => (x.athlete!=null && x.athlete.marked))
         .optionalFilter(settings.nearby.myCategoryOnly, x => state.eventSubgroupId==x.state.eventSubgroupId)
         .sortAndFixEventPositionRiders(settings.nearby.myCategoryOnly, state.eventSubgroupId != 0)
         // remove backmarkers, higher positions than you in front of position 1

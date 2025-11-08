@@ -118,7 +118,7 @@
                 </label>
                 <label>
                     <key>Max riders to show</key>
-                    <input type="number" name="maxNearbyRiders" min="2" max="50" step="1" style="--size: 5"/>
+                    <input type="number" name="maxNearbyRiders" min="0" max="50" step="1" style="--size: 5"/>
                 </label>
                 <label>
                     <key>Marked riders:</key>
@@ -196,7 +196,7 @@
                 <hr/>
                 <label>
                     <key>Flamme Rouge Racing</key>
-                    <input type="checkbox" name="frrMode"/>
+                    <input type="checkbox" name="frrMode"/> show team and racer view should be enabled
                 </label>
                 <div class="sub">
                     <label>
@@ -225,6 +225,10 @@
                         <input type="color" name="frrBackgroundColor" data-depends-on="frrMode"/>
                     </label>
                     <label>
+                        <key>My FHRC badge style:</key>
+                        <input type="checkbox" name="frrMyFhrcBadgeAsClass" data-depends-on="frrMode"/> full FRR class name
+                    </label>                    
+                    <label>
                         <key>Show my FHRC only:</key>
                         <input type="checkbox" name="frrMyFhrcOnly" data-depends-on="frrMode"/>
                     </label>
@@ -245,6 +249,8 @@
                     <input type="number" title="Opacity" name="backgroundAlpha" data-depends-on="solidBackground"
                            style="--size: 5" min="0" max="100" value="100"/>%
                 </label>
+                <hr/>
+                <a href="https://www.buymeacoffee.com/oaphinan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 108px !important;" ></a>
             </form>
             <form id="fields" class="section">
             </form>

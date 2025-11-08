@@ -1,6 +1,7 @@
 import * as common from '/pages/src/common.mjs';
 import * as o101Common from './o101/common.mjs';
 import * as o101UiLib from './o101/ui-lib.mjs';
+import * as o101Ext from './o101/extensions.mjs';
 
 const doc = document.documentElement;
 let showVirtualGear;
@@ -134,11 +135,11 @@ function updateMetrics(info) {
     }
     if (showPower) {
         const power = Math.round(powerSmooth5s?info.stats.power.smooth['5']:info.state.power);
-        setValue('#power', power + '<abbr class="power">W</abbr>');
+        setValue('#power', power + '<abbr class="power">W</abbr>', null, o101Common.fmtWkg(info));
     }
     if (showPowerWkg) {
         const power = powerSmooth5s?o101Common.fmtWkgSmooth(info,'5'):o101Common.fmtWkg(info);
-        setValue('#powerwkg', power + '<abbr class="power">Wkg</abbr>');
+        setValue('#powerwkg', power + '<abbr class="power">Wkg</abbr>', null, o101Common.fmtWkg(info));
     }    
     if (showDraft) {
         setValue('#draft', o101Common.fmtDraft(info, showDraftAsWkg) + '<abbr class="draft">&Xi;</abbr>');
@@ -154,17 +155,16 @@ function updateMetrics(info) {
     }
 }
 
-function setValue(id, value, unit, img) {
+function setValue(id, value, img, wkg = 0) {
     const div = doc.querySelector(id);
         
     if (div == null || value == null) return '&nbsp';
     
-    if (unit != null) {
-        div.innerHTML = value + '<abbr class="unit">' + unit + '</abbr>';
-    } else if (img != null){
+    if (img != null){
         div.innerHTML = value + img;
     } else {
         div.innerHTML = value;
+        div.withWkgColor(wkg);
     }
 }
 

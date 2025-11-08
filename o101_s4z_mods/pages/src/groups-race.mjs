@@ -45,7 +45,6 @@ export async function main() {
 function onSettingsChanged() {
     updateSettings();
     render();
-    location.reload();
 }
 
 function render() {
@@ -353,6 +352,7 @@ function renderGroups(groupsToRender) {
             .withOptionalChildDiv(settings.showMarkedRiders && group.markedRiders==1, ['group-item-marked'], fmtMarkedRiders(group.markedRiders))
             .withOptionalChildDiv(settings.showMarkedRiders && group.markedRiders>1, ['group-item-marked', 'multiple'], fmtMarkedRiders(group.markedRiders))
             .withChildDiv(['group-item-size'], fmtSize(group.size))
+            .withWkgColor(group.power.wkg)
         groupDiv.appendChild(main);
         const sub = o101UiLib
             .createDiv(['group-item', 'sub'])
@@ -363,8 +363,9 @@ function renderGroups(groupsToRender) {
             .withOptionalChildDiv(settings.showMaxRank && group.rank.min>=4, ['group-item-maxrank'], group.rank.min + '<img src="././images/number-sign.png"/>')
             .withChildDiv(['group-item-speed-delta'], fmtSpeedDelta(group.raceInfo.speedDeltaPercentage))
             .withChildDiv(['group-item-speed'], o101Common.formatNumber(group.speed, settings.speedDecimals) + '<img src="././images/speed.png"/>')
-            .withChildDiv(['group-item-power'], o101Common.formatNumber(group.powerWkg, 1))
+            .withChildDiv(['group-item-power'], o101Common.formatNumber(group.power.wkg, 1))
             .withChildDiv(['info-item-wkgunit'], '&#9889')
+            .withWkgColor(group.power.wkg)
         groupDiv.appendChild(sub);
         groupsDiv.appendChild(groupDiv);
 
@@ -447,8 +448,13 @@ function createGroup(group, id) {
         name: '',
         size: riders.length,
         speed: pullers.reduce((total, next) => total + next.speed, 0) / pullers.length,
-        power: pullers.reduce((total, next) => total + next.power, 0) / pullers.length,
-        powerWkg: pullers.reduce((total, next) => total + next.powerWkg, 0) / pullers.length,
+        //not used? power: pullers.reduce((total, next) => total + next.power, 0) / pullers.length,
+        //powerWkg: pullers.reduce((total, next) => total + next.powerWkg, 0) / pullers.length,
+        power: {
+            //watts: pullers.reduce((total, next) => total + next.power, 0) / pullers.length,
+            wkg: pullers.reduce((total, next) => total + next.powerWkg, 0) / pullers.length,
+            //maxWkg: Math.max(...pullers.map(p => p.powerWkg))
+        },
         gap: {
             time: group.gap,
             distance: 0,

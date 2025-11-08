@@ -4,7 +4,7 @@
     "description": "Some racing MODs",
     "author": "Onno Aphinan",
     "website_url": "https://github.com/O101",
-    "version": "1.7.6",
+    "version": "1.7.8",
     "web_root": "pages",
     "windows": [
         {

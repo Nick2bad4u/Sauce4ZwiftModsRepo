@@ -96,6 +96,12 @@ Array.prototype.sortAndFixEventPositionRiders = function(myCategoryOnly, resetPo
 
 HTMLElement.prototype.withWkgColor = function (wkg) {
     const wkgClass = o101UiLib.getWkgColorCss(wkg);
+
+    if (wkgClass == '') {
+        this.removeCsss(['orange', 'red', 'purple']);
+
+        return this;
+    }
     
     this.addCsss([wkgClass]);
 
@@ -159,6 +165,14 @@ HTMLElement.prototype.addCsss = function (csss) {
     if (csss != null && csss.length>0){
         for(const css of csss) {
             if (css != '') this.classList.add(css);
+        }
+    }
+}
+
+HTMLElement.prototype.removeCsss = function (csss) {
+    if (csss != null && csss.length>0){
+        for(const css of csss) {
+            if (css != '' && this.classList.contains(css)) this.classList.remove(css);
         }
     }
 }

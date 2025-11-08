@@ -33,3 +33,9 @@ div.striked {
 .zwift-blue {
     background-color: #2596be;
 }
+
+#event-power-ups-value img {
+    max-width: calc(var(--font-scale) * 8vw);
+    display: inline-block;
+    vertical-align: middle;
+}

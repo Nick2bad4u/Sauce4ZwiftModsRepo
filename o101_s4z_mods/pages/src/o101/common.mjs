@@ -3,6 +3,15 @@ import * as common from '/pages/src/common.mjs';
 
 let imperial = common.storage.get('/imperialUnits');
 
+function getNameOverride(id) {
+    // if (id === 5052527) return { override: true, name: 'Jeroen R' }
+    // if (id === 150437) return { override: true, name: 'Jeroen D' }
+    // if (id === 4795357) return { override: true, name: 'Hans' }
+    // if (id === 1521896) return { override: true, name: 'Barry' }
+    // if (id === 832234) return { override: true, name: 'Anton' }
+    return { override: false }
+}
+
 export const hasAthleteAttribute = (info, prop) => {
     return Object.hasOwn(info, 'athlete')
         && info.athlete != null
@@ -198,6 +207,40 @@ export function findAndMoveExpiredPowerUps(state) {
     }
 }
 
+const powerUpList = {
+    0: 'feather',
+    1: 'draft',
+    2: 'smallXP',
+    3: 'largeXP',
+    4: 'burrito',
+    5: 'aero',
+    6: 'ghost',
+    7: 'steamroller',
+    8: 'anvil'
+}
+
+export function getEventPowerUps(zwiftEvent) {
+    let powerUps = [];
+
+    try {
+         const powerUpPercent = zwiftEvent.allTags.filter(tag => tag.includes('powerup_percent'));
+
+         if (powerUpPercent.length>0) {
+            const powerUpPercentValue = powerUpPercent[0].split('=')[1].replace('"','').split(',');
+
+            for (let i=0; i<powerUpPercentValue.length; i++){
+                if (i%2===0){
+                    powerUps.push(powerUpList[powerUpPercentValue[i]]);
+                }
+            }  
+         }
+    } catch (error) {
+        console.error(error);
+    }
+
+    return powerUps;
+}
+
 export function fmtGapTime(info) {
     if (isInGroup(info)) {
         return '&nbsp';
@@ -299,6 +342,9 @@ export function fmtRacingCategory(info) {
 }
 
 export function fmtName(info) {
+    const overrideInfo = getNameOverride(getAthleteId(info))
+    if (overrideInfo.override) return overrideInfo.name;
+
     const firstName = fmtFirstName(info, 1);
     const name = (firstName.length > 0)
         ? fmtFirstName(info, 1) + '.' + fmtLastName(info)
@@ -341,7 +387,7 @@ export function fmtFirstName(info, maxLength) {
         first = first.substring(0,1).toUpperCase();
     }
 
-    return first == '' ? 'N' : first;
+    return first;
 }
 
 export function fmtLastName(info) {
@@ -451,18 +497,20 @@ export function fmtTeamBadgeV2Raw(teamColor, useDisplayName = false) {
     return '<div class="info-item-team" style="--o101c:'+teamColor.color+'; --o101lg1:'+teamColor.lgColor1+'; --o101lg2:'+teamColor.lgColor2+'; --weight:'+teamColor.weight+'"><span>'+displayName+'</span></div>';
 }
 
-export function frrCategory(athlete) {
-    let fhrc = 'UNC';
+export function frrCategory(athlete, showClass = false) {
+    let fhrc = { class:'UNCLASSIFIED', code:'UNC' };;
     const codes = ['CAP', 'DRA', 'CRP', 'GHT', 'HAB', 'BON', 'CAY', 'JLP', 'PEP', 'BEL'];
+    const classes = ['CAPSAICIN', 'DRAGON', 'REAPER', 'GHOST', 'HABANERO', 'BONNET', 'CAYENNE', 'JALAPENO', 'PEPPERONCINI', 'BELL'];
     const lastName = athlete != null && athlete.athlete != null && Object.hasOwn(athlete.athlete, 'lastName') ? athlete.athlete.lastName : '';
     const nameParts = lastName.split(' ');
 
     for (let i=0; i<nameParts.length; i++) {
+        let j = 0;
         for (const code of codes) {
             if (nameParts[i].toUpperCase().indexOf(code)>=0) {
-                fhrc = code;
-                break;
+                return { class:classes[j], code:code };// showClass ? classes[j] : code;
             }
+            j++;
         }
     }
 
@@ -723,6 +771,65 @@ export function preferredTeamColor(name) {
     }
 
     return {name, color, lgColor1, lgColor2, weight, displayName};
+}
+
+let _overRiders;
+export async function initOverRiders() {
+    const r = await fetch('./src/o101/overriders.json');
+    if (!r.ok) {
+        throw new Error('Failed to get overrider data: ' + r.status);
+    }
+    const data = await r.json();
+
+    _overRiders = data.map(rider => { return {
+        id: rider.id,
+        name: rider.name,
+        alias: rider.alias,
+        team: rider.team
+    }});
+}
+
+export function getOverRider(id) {
+    return (id != null && id != '') ? _overRiders.find(t => id == t.id) : null;
+}
+
+let _teamOverRides;
+export async function initTeamOverRides() {
+    const r = await fetch('./src/o101/teamoverrides.json');
+    if (!r.ok) {
+        throw new Error('Failed to get team override data: ' + r.status);
+    }
+    const data = await r.json();
+
+    _teamOverRides = data.map(team => { return {
+        id: team.id,
+        name: team.name,
+        badge: team.badge
+    }});
+}
+
+export function getTeamOverRide(id) {
+    return (id != null && id != '') ? _teamOverRides.find(t => id == t.id) : null;
+}
+
+let _riderStats;
+export async function initRiderStats() {
+    const r = await fetch('./src/o101/riderstats.json');
+    if (!r.ok) {
+        throw new Error('Failed to get riderstats data: ' + r.status);
+    }
+    const data = await r.json();
+
+    _riderStats = data.map(rider => { return {
+        id: rider.id,
+        zrs: rider.zrs,
+        velo: rider.velo,
+        wkg: rider.wkg
+    }});
+}
+
+export function getRiderStats(id) {
+    return (id != null && id != '') ? _riderStats.find(t => id == t.id) : null;
 }
 
 String.prototype.toHex = function() {

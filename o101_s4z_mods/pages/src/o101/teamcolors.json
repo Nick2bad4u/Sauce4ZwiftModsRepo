@@ -1,5 +1,7 @@
 [
     {"name":"TFC", "textColor":"#000", "linearGradientColor1":"#ffdd33", "linearGradientColor2":"#9f7d03", "weight":"900", "displayName":"TFC"},
+    {"name":"Cloud9", "textColor":"#fff", "linearGradientColor1":"#ff8800", "linearGradientColor2":"#ffaa00", "displayName":"CLOUD9"},
+    {"name":"Cloud", "textColor":"#fff", "linearGradientColor1":"#ff8800", "linearGradientColor2":"#ffaa00", "displayName":"CLOUD9"},
     {"name":"TeamNL", "textColor":"#fff", "linearGradientColor1":"#ff8800", "linearGradientColor2":"#ffaa00", "displayName":"Team NL"},
     {"name":"Team NL", "textColor":"#fff", "linearGradientColor1":"#ff8800", "linearGradientColor2":"#ffaa00", "displayName":"Team NL"},
     {"name":"TNL", "textColor":"#fff", "linearGradientColor1":"#ff8800", "linearGradientColor2":"#ffaa00", "displayName":"Team NL"},
@@ -10,7 +12,7 @@
     {"name":"ZRG", "textColor":"#00bbff", "linearGradientColor1":"#333", "linearGradientColor2":"#666", "displayName":"ZRG"},
     {"name":"DBR", "textColor":"#fff", "linearGradientColor1":"#003cff", "linearGradientColor2":"#1f53ff", "displayName":"DBR"},
     {"name":"BZR", "textColor":"#ffff00", "linearGradientColor1":"#000", "linearGradientColor2":"#111", "displayName":"BZR"},
-    {"name":"Vikings", "textColor":"#fff", "linearGradientColor1":"#0055ff", "linearGradientColor2":"#3300ff", "displayName":"Vikings"},
+    {"name":"Vikings", "textColor":"#fff", "linearGradientColor1":"#0055ff", "linearGradientColor2":"#3300ff", "displayName":"V"},
     {"name":"RWB", "textColor":"#fff", "linearGradientColor1":"#065700", "linearGradientColor2":"#0a9400", "displayName":"RWB"},
     {"name":"TugaZ", "textColor":"#fff", "linearGradientColor1":"#ff0000", "linearGradientColor2":"#ff5500", "displayName":"TugaZ"},
     {"name":"AHDR", "textColor":"#ff8800", "linearGradientColor1":"#00ffff", "linearGradientColor2":"#00aaff", "displayName":"AHDR"},
@@ -32,6 +34,7 @@
     {"name":"TT1", "textColor":"#fff", "linearGradientColor1":"#ff9900", "linearGradientColor2":"#ff6600", "displayName":"TT1"},
     {"name":"Type 1", "textColor":"#fff", "linearGradientColor1":"#ff9900", "linearGradientColor2":"#ff6600", "displayName":"TT1"},
     {"name":"EVO", "textColor":"#be1aff", "linearGradientColor1":"#000", "linearGradientColor2":"#121811", "displayName":"EVO"},
+    {"name":"Scrambled", "textColor":"#be1aff", "linearGradientColor1":"#000", "linearGradientColor2":"#121811", "displayName":"EVO"},
     {"name":"BRT", "textColor":"#fff", "linearGradientColor1":"#000", "linearGradientColor2":"#222", "displayName":"BRT"},
     {"name":"SISU", "textColor":"#fff", "linearGradientColor1":"#7700ff", "linearGradientColor2":"#6200ff", "displayName":"SISU"},
     {"name":"PTz", "textColor":"#ff0000", "linearGradientColor1":"#fff", "linearGradientColor2":"#dadbdd", "displayName":"PTz"},
@@ -92,5 +95,11 @@
     {"name":"LEVEL", "textColor":"#fff", "linearGradientColor1":"#13e329", "linearGradientColor2":"#13e329", "displayName":"LEVEL"},
     {"name":"LD", "textColor":"#fff", "linearGradientColor1":"#ff9900", "linearGradientColor2":"#ff9900", "displayName":"Dynamo"},
     {"name":"Four", "textColor":"#fff", "linearGradientColor1":"#ff9900", "linearGradientColor2":"#ff9900", "displayName":"4Star"},
-    {"name":"Cheesecake", "textColor":"#fff", "linearGradientColor1":"#0025ff", "linearGradientColor2":"#0025ff", "displayName":"CC"}
+    {"name":"Cheesecake", "textColor":"#fff", "linearGradientColor1":"#0025ff", "linearGradientColor2":"#0025ff", "displayName":"CC"},
+    {"name":"Herts", "textColor":"#fff", "linearGradientColor1":"#0025ff", "linearGradientColor2":"#0025ff", "displayName":"HCT"},
+    {"name":"A E R O", "textColor":"#fff", "linearGradientColor1":"#1bba1a", "linearGradientColor2":"#94d51a", "displayName":"AERO"},
+    {"name":"On The Rivet", "textColor":"#41ad92", "linearGradientColor1":"#000", "linearGradientColor2":"#111", "displayName":"OTR"},
+    {"name":"e-Cycling", "textColor":"#fff", "linearGradientColor1":"#003cff", "linearGradientColor2":"#1f53ff", "displayName":"eCKD"},
+    {"name":"eCykle", "textColor":"#fff", "linearGradientColor1":"#003cff", "linearGradientColor2":"#1f53ff", "displayName":"eCKD"},
+    {"name":"ZWIFT", "textColor":"#000", "linearGradientColor1":"#fff", "linearGradientColor2":"#fff", "displayName":"ZWIFT"}
 ]

@@ -4,9 +4,9 @@
     "description": "Brian's Mod Collection for S4Z",
     "author": "Brian Mudge",
     "website_url": "https://www.sauce.llc",
-    "version": "0.2.9",
+    "version": "0.4.0",
     "content_css": [
-
+        
     ],
     "web_root": "pages",
     "windows": [
@@ -41,19 +41,20 @@
             }
         },
         {
-            "file": "pages/estimatedCalories.html",
-            "id": "Estimated Calories",
-            "name": "Estimated Calories",
-            "description": "Show estimated calories burned at finish",
+            "file": "pages/watchedHUD.html",
+            "id": "Watched HUD",
+            "name": "Watched HUD",
+            "description": "HUD for the watched rider",
             "always_visible": true,
             "overlay": true,
             "frame": false,
             "default_bounds": {
-                "width": 400,
-                "height": 300,
-                "x": -300,
-                "y": 200
+                "width": 150,
+                "height": 400,
+                "x": 400,
+                "y": 250
             }
         }
+        
     ]
 }

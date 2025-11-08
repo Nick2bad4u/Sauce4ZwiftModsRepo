@@ -2,13 +2,73 @@ Change Log for "Brian Mudge MODs for S4Z"
 
 Planned / ToDo
 	- DS Notes - Make segment notes editable
-	- DS Notes - Hide segments that riderList has completed. (Tickbox in settings)
-	- DS Notes - Take into account custom finishes
 	- EFT - remainingType: undefined
 	- EFT - Change colour of firstrider if S4Z can't see them
 	- EFT - Need to be able to determine the current Lap, on a multi lap race.
 	- EFT - If no eventPosition, then filter on subgroup & firstDistance > watchDistance (or within 1000m) - (x >= 0.001 && x <= 0.009)
+	- HUD - rider.state.workoutZone
+	- New Route - "Power Punches"
+	- DS Notes - Check ActiveEvent = null for marking off segments
 
+
+v0.4.0
+	- DS Notes - Added Custom Segments to "Tropic Rush" route.
+	- DS Notes - Added Custom Segments to "Watts of the Wild" route.
+	- DS Notes - Added Custom Segments to "Electric Break" route.
+	- Common - Updated the Terrain data
+
+v0.3.9
+	- New routes added - "Southern Coast Cruise", "Jarvis Seaside Sprint" & "Flat Out Fast"
+	- New routes added - First 6 routes for Zwift Unlocked Tour
+
+v0.3.8
+	- HUD - Control of what fields you see for Draft & Watts
+
+v0.3.7
+	- DS Notes - Added custom segment to "Zwift Bambino Fondo 2022" route
+	- EFT - Added check for eventSubgroupId == null
+	- HUD - Centered the icons
+	- HUD - Colourised the "Watts" numbers
+
+v0.3.6
+	- HUD - Add field for Watts (Current & Average)
+
+v0.3.5
+	- HUD - Fixed "Remaining" calculation for "FreeRides"
+	- HUD - Added the ability to set the field sequence.
+	- DS Notes - Fixed issue where rider in the "Pen" showed "NaNkm" for distance.
+
+v0.3.4
+	- HUD - Working on determining the Event Type - Tiny Race / Crit Race / TTT / Scratch Race / Points Race / Time
+	- HUD - Added Distance left & % remaining
+	- HUD - Added setting for "% remaining" or "% complete"
+
+v0.3.3
+	- HUD - Added settings to Show/Hide field keys - 5/20 or C/A
+
+v0.3.2
+	- watchedHUD - Added 
+	- Common - Added get5minPowerHTML & get20minPowerHTML to common.mjs
+	- Common - Added getHRHTML, getWBalHTML, getWBalHTML, getCadenceHTML, getSpeedHTML, getEFTHTML, getDaftHTML, getPositionHTML to common.mjs
+	- DS Notes  - Take HR from getHRHTML
+	- DS Notes  - Take 5 & 20 minute WKG from get5minPowerHTML & get20minPowerHTML
+
+v0.3.1
+	- DS Notes - Corrected an issue with "time" based events (IE 60 minute rides)
+	- DS Notes - Fixed an issue with custom Segment display on route Freerides
+	- DS Notes - Added "Castle Loop Climb" to Scotland Smash route
+	- DS Notes - Added Peak 5 minute WKG, to the riderList. Yellow = Smooth / Green = Peak
+	- DS Notes - Added "Suki Climb 1" to Three Village Loop"
+	- DS Notes - Added custom segment "Deadman's Curve Climb". Added it to "Two Bridges Loop"
+
+v0.3.0
+	- DS Notes - minDistance. Put a || 200 in the start distance equation
+	- DS Notes - Minor updates to some of the new France segments
+	- DS Notes - Added "Les Intestins" to "Gentil 8" route
+	- DS Notes - Added "Ramp out of Desert" to "Triple Flat Loops" route
+	- DS Notes - Added data for "Ventous Half KOM" segment
+	- DS Notes - Added "Les Intestins - Inbound" segment to "knights of the roundabout" route
+	- DS Notes - Take into account custom "distance" finishes (IE 100km rides doing multiple laps)
 
 v0.2.9
 	- DS Notes - Found end cases where no route segment data. If this is the case I now show the riderList without route related fields.

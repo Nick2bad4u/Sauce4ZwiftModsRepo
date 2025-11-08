@@ -122,6 +122,7 @@ const route = {
 
 const event = {
     refreshDate: Date.now() - (eventRefreshInterval - 2000),
+    laps: 1,
     totalDistance: 0,
     calcLaps: 0,
     totalAscent: 0
@@ -213,6 +214,9 @@ async function updateRouteInfo(){
                 route.world = routeLookup.worldId;
                 forceSegmentUpdate=true;
                 route.externalData = false;
+                if (activeEvent !== undefined && activeEvent.distanceInMeters > event.totalDistance) {
+                    event.totalDistance = activeEvent.distanceInMeters;
+                }
             }
             route.ascentInMeters = routeLookup.ascentInMeters;
             route.distanceInMeters = routeLookup.distanceInMeters;
@@ -236,14 +240,31 @@ async function updateEventInfo(){
         if (activeEvent === undefined) {
             if (event.totalDistance == 0) event.totalDistance = route.distanceInMeters;
         } else {
-//            console.log("Update updateEventInfo");
+            if (debug) console.log("Update updateEventInfo");
+            if (debug) console.log("remainingMetric :", state.remainingMetric);
             forceSegmentUpdate=true;
             if (route.externalData) activeEvent.routeDistance = (routeLookup.distance * 1000) + (routeLookup.leadIn * 1000);
-;
-            if (state.remainingType == "event") {
+
+            if (state.remainingType == "event" && state.remainingMetric != 'distance') {
                 event.totalDistance =  activeEvent.routeDistance;
                 event.totalAscent = activeEvent.routeClimbing;
-                event.laps = activeEvent.laps;
+                if (state.remainingMetric == "time") {
+                    event.laps = 1;
+                } else {
+                    event.laps = activeEvent.laps;
+                }
+            } else if ( state.remainingMetric == "distance") {
+                if (debug) console.log("Update based on 'distance'");
+                if (activeEvent.distanceInMeters > event.totalDistance) {
+                    if (debug) console.log("Update based on 'distance'");
+                    event.totalDistance = activeEvent.distanceInMeters;
+
+                    if (route.distanceInMeters > 0) {
+                        let numberOfLaps = (event.totalDistance - route.leadinDistanceInMeters) / route.distanceInMeters;
+                        if (debug) console.log("numberOfLaps :", numberOfLaps);
+                        event.calcLaps = numberOfLaps;
+                    }
+                }
             } else if (state.remainingType == "route") {
                 event.laps = watchingRider.lapCount;
             }
@@ -308,9 +329,11 @@ function updateMetrics(info) {
     
     let refreshDelta = Date.now() - segmentData.refreshDate;
 //    if (debug) console.log("refreshDelta :", refreshDelta);
-    if ((Date.now() - segmentData.loadRefreshDate) >= 100000 || forceSegmentUpdate) {
-        loadSegments(info.segmentData.routeSegments);
-        segmentData.loadRefreshDate = Date.now();
+    if (info.segmentData !== undefined) {
+        if ((Date.now() - segmentData.loadRefreshDate) >= 100000 || forceSegmentUpdate) {
+            loadSegments(info.segmentData.routeSegments);
+            segmentData.loadRefreshDate = Date.now();
+        }
     }
     if ((Date.now() - segmentData.refreshDate) >= 10000) {
         refresh = true;
@@ -413,32 +436,49 @@ function loadSegments(routeSegments) {
 //        console.log("customSegmentsArray:", customSegmentsArray);
         let customSegmentsData = customSegmentsArray.filter(n => n.Route==route.name.toLowerCase());
 //        console.log("customSegmentsData:", customSegmentsData);
-        if (activeEvent == null) {
+        if (activeEvent == null && state.remainingMetric != "distance") {
             eventLaps = 1;
+        } else if (state.remainingMetric == "distance") {
+            //numberOfLaps = Math.ceil(numberOfLaps);
+            //numberOfLaps = Math.floor(numberOfLaps);
+            if (activeEvent == null) {
+            } else if (activeEvent.laps > 0) {
+                eventLaps = activeEvent.laps;
+            } else {
+                eventLaps = Math.ceil(event.calcLaps);
+            }
         } else {
             eventLaps = activeEvent.laps;
         }
-    console.log("eventLaps:", eventLaps);
+        if (eventLaps == 0) eventLaps = 1;
+        if (debug) console.log("eventLaps:", eventLaps);
         let routeDistance = route.distanceInMeters;
 //    console.log("routeDistance:", routeDistance);
 //    console.log("segmentData.routeName:", segmentData.routeName);
 //    console.log("route.name:", route.name);
+//    console.log("customSegmentsData:", customSegmentsData);
         if (customSegmentsData != null){
             let calcStart=0;
+            if (activeEvent != null && activeEvent.routeDistance > event.totalDistance) event.totalDistance = activeEvent.routeDistance;
             for (let i=0; i<customSegmentsData.length; i++) {  // For each custome segment do
                 const segment = customSegmentsData[i];
 //                console.log("segment:", segment);
                 let otherClimbData = otherClimbsArray.filter(n => n.Name==segment.Segment);
                 let notesData = notesArray.filter(n => n.Name==segment.Segment.toLowerCase());
-                //                console.log("otherClimbData:", otherClimbData);
+//                console.log("otherClimbData:", otherClimbData);
 //                console.log("otherClimbData.Length:", otherClimbData[0].Length);
+//                if (debug) console.log("otherClimb eventLaps:", eventLaps);
                 for (let j=1; j<=eventLaps;j++){
-//                    console.log("Process lap '" + j + "'");
+//                    console.log("otherClimb Process lap '" + j + "'");
                     if (j==1) {
                         calcStart = BMcommon.kmStringToNumber(segment.Start);
+                    } else if (state.remainingMetric == "distance") {
+                        calcStart = BMcommon.kmStringToNumber(segment.Start) + (routeDistance * (j -1));
+                        if (calcStart > event.totalDistance) { break; }
                     } else {
                         calcStart = BMcommon.kmStringToNumber(segment.Start) + (routeDistance * (j -1));
                     }
+//                    console.log("otherClimb calcStart:", calcStart);
                     newSegment = {
                         idx: 0,
                         id: segment.id,
@@ -681,7 +721,7 @@ async function updateMarkedRiderInfo(nearby) {
 
 //    if (debug) console.log("Run updateMarkedRiderInfo");
     segmentData.riderRefreshDate = Date.now();
-    segmentData.minDistance = event.totalDistance;
+    segmentData.minDistance = event.totalDistance || 200;
     let segmentMessage = "";
     let routeSegments = segmentData.segments.routeSegments;
 //console.log("routeSegments:", routeSegments);
@@ -704,7 +744,7 @@ async function updateMarkedRiderInfo(nearby) {
     let innerHTML="<table border=1 STYLE='margin-bottom: 30px;'><thead><tr>";
     innerHTML = innerHTML + "<th data-id='riderName' title='Rider' class>Rider</td>"; 
     innerHTML = innerHTML + "<th data-id='riderDistance' title='Distance' class>Distance</td>"; 
-    if (show20MinPower) innerHTML = innerHTML + "<th id='riderPeak20MinWkgHeader' data-id='riderPeak20MinWkg' title='20M Power' class>20M Power</td>"; 
+    if (show20MinPower) innerHTML = innerHTML + "<th id='riderPeak20MinWkgHeader' data-id='riderPeak20MinWkg' title='5M/20M wkg' class>5M/20M wkg</td>"; 
     if (showHR) innerHTML = innerHTML + "<th id='riderHRHeader' data-id='riderHR' title='HeartRate' class>HR</td>"; 
     if (routeSegments != null) innerHTML = innerHTML + "<th data-id='riderNextSegment' title='Next Segment' class>Next Segment</td>";
     if (showNotesRiderList && routeSegments != null) innerHTML = innerHTML + "<th data-id='riderNextSegment' title='Notes' class>Notes</td>";
@@ -713,31 +753,42 @@ async function updateMarkedRiderInfo(nearby) {
     for (let i=0; i<markedRiders.length; i++) {
         const rider = markedRiders[i];
         if (debug) console.log("rider :", rider);
+        let rider5MinWkgValue = 0;
+        let rider5MinWkgColour = " style='color: white; background-color:transparent;'";
+        let rider5MinWkgTitle = "Peak 5 Minutes";
         let rider20MinWkgValue = 0;
-        let rider20MinWkgColour = " style='color: white;'";
+        let rider20MinWkgColour = " style='color: white; background-color:transparent;'";
+        let rider20MinWkgTitle = "Peak 20 Minutes";
         let riderHrColour=" style='color: white;'";
         let riderHrTitle = "HeartRate";
         let riderWatchedColour = " style='color: white;'";
-        let rider20MinWkgTitle = "Peak 20 Minutes";
         let riderSegmentNote = "";
         let riderDistance = 0;
         if (rider.watching) {
             riderWatchedColour = " style='color: lime;'";
         }
         if (distanceCalculation == "routePosition" && rider.segmentData !== undefined) {
-            let riderDistanceCheck = rider.state.distance - rider.segmentData.currentPosition;
+            let riderDistanceCheck = 0;
+            if (rider.segmentData.currentPosition != null && rider.segmentData.currentPosition != undefined) {
+                riderDistanceCheck = rider.state.distance - rider.segmentData.currentPosition;
+            }
             if (debug) console.log("riderDistanceCheck: '", rider.athlete.sanitizedFullname, "' ",riderDistanceCheck);
             if (riderDistanceCheck > 400 && rider.remainingType == "event"){
                 riderDistance = rider.state.distance;
             } else {
-                riderDistance = rider.segmentData.currentPosition;
+                if (rider.segmentData.currentPosition != null && rider.segmentData.currentPosition != undefined) {
+                    riderDistance = rider.segmentData.currentPosition;
+                } else {
+                    riderDistance = 0;
+                }
             }
         } else {
             riderDistance = rider.state.distance;
         }
+        if (debug) console.log("riderDistance: '", rider.athlete.sanitizedFullname, "' ",riderDistance);
 
         if (riderDistance < segmentData.minDistance) segmentData.minDistance = riderDistance
-//        if (debug) console.log("minDistance:", segmentData.minDistance);
+        if (debug) console.log("minDistance:", segmentData.minDistance);
 
         if (routeSegments != null) {
             let onSegment = routeSegments.filter(n => riderDistance > n.start && riderDistance < n.end);
@@ -764,18 +815,27 @@ async function updateMarkedRiderInfo(nearby) {
         innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "'" + riderWatchedColour + ">" + rider.athlete.sanitizedFullname + "</td>";
         innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' align='right'>" + displayRiderDistance.toFixed(2) + "<abbr>km</abbr></td>";
         if (show20MinPower) {
+            if (rider.stats.power.peaks[300].avg != null ) {
+                rider5MinWkgValue = rider.stats.power.peaks[300].avg / rider.athlete.weight;
+                rider5MinWkgColour = " style='color: lime; background-color:transparent;'";
+            } else {
+                rider5MinWkgValue = rider.stats.power.smooth[300] / rider.athlete.weight;
+                rider5MinWkgColour = " style='color: yellow; background-color:transparent;'";
+                rider5MinWkgTitle = "Smooth 5 Minutes";
+            }
             if (rider.stats.power.peaks[1200].avg != null ) {
                 rider20MinWkgValue = rider.stats.power.peaks[1200].avg / rider.athlete.weight;
-                rider20MinWkgColour = " style='color: lime;'";
+                rider20MinWkgColour = " style='color: lime; background-color:transparent;'";
             } else {
                 rider20MinWkgValue = rider.stats.power.smooth[1200] / rider.athlete.weight;
-                rider20MinWkgColour = " style='color: yellow;'";
+                rider20MinWkgColour = " style='color: yellow; background-color:transparent;'";
                 rider20MinWkgTitle = "Smooth 20 Minutes";
             }
-            innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' title='" + rider20MinWkgTitle + "' align='right'" + rider20MinWkgColour + ">" + rider20MinWkgValue.toFixed(2) + "<abbr>wkg</abbr></td>";
+//            innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' title='" + rider20MinWkgTitle + "' align='right'><span" + rider5MinWkgColour + ">" + rider5MinWkgValue.toFixed(2) + " / <span " + rider20MinWkgColour + ">" + rider20MinWkgValue.toFixed(2) + "</span></span></td>";
+            innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' title='" + rider20MinWkgTitle + "' align='right'>" + BMcommon.get5minPowerHTML(rider).replace('(5)','') + " / " + BMcommon.get20minPowerHTML(rider).replace('(20)','') + "</td>";
         }
         if (showHR) {
-            if (rider.state.heartrate != null) {
+/*             if (rider.state.heartrate != null) {
                 if (debug) console.log("rider-Name", rider.athlete.sanitizedFullname);
                 if (debug) console.log("rider-HR", rider.state.heartrate);
                 if (rider.athlete.age != null) {
@@ -816,7 +876,9 @@ async function updateMarkedRiderInfo(nearby) {
                     }
                 }
             }
-            innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' title='" + riderHrTitle + "' align='right'" + riderHrColour + ">" + rider.state.heartrate + "<abbr>bpm</abbr></td>";
+ */
+//            innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' title='" + riderHrTitle + "' align='right'" + riderHrColour + ">" + rider.state.heartrate + "<abbr>bpm</abbr></td>";
+            innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' title='" + riderHrTitle + "' align='right'" + riderHrColour + ">" + BMcommon.getHRHTML(rider) + "</td>";
         }
         if (routeSegments != null) innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' align='left'>" + segmentMessage + "</td>";
         if (showNotesRiderList && routeSegments != null) innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' align='left'>" + riderSegmentNote + "</td>";

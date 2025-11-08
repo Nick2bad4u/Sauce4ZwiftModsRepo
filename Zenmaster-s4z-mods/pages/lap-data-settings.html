@@ -87,6 +87,67 @@
             import {settingsMain} from './src/lap-data.mjs';
             settingsMain();
             document.body.classList.remove("transparent-bg");
+            document.addEventListener('DOMContentLoaded', () => {
+                const MIN_GAP = 10;
+                const low  = document.querySelectorAll('input[name="autoLapRangeLow"]');
+                const high = document.querySelectorAll('input[name="autoLapRangeHigh"]');
+                
+                const sync = (group, value) => {
+                    group.forEach(el => {
+                    el.value = value;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                };
+
+                const enforce = (lowChanged) => {
+                    let l = parseInt(low[0].value)  || 0;
+                    let h = parseInt(high[0].value) || 0;
+
+                    if (h - l < MIN_GAP) {
+                    if (lowChanged) {
+                        h = l + MIN_GAP;
+                        sync(high, h);
+                    } else {
+                        l = h - MIN_GAP;
+                        sync(low, l);
+                    }
+                    }
+                };
+                
+                const attach = (group, lowChanged) => {
+                    group.forEach(input => {
+                    let lastCause = null;               // 'type' | 'arrow' | null
+
+                    // Track whether the change came from keyboard or mouse
+                    input.addEventListener('keydown',  e => { lastCause = 'type';  if (e.key === 'Enter') enforce(lowChanged); });
+                    input.addEventListener('mousedown',() => { lastCause = 'arrow'; });
+                    
+                    input.addEventListener('input', e => {
+                        if (e.inputType) {
+                        if (e.inputType.startsWith('delete') || e.inputType === 'insertText') lastCause = 'type';
+                        else if (e.inputType.includes('Increment') || e.inputType === 'insertReplacementText') lastCause = 'arrow';
+                        }
+
+                        const isTyped = lastCause === 'type';
+                        lastCause = null;
+
+                        if (isTyped) {                        
+                            if (e.target.value.trim().length >= 3) {
+                                enforce(lowChanged);
+                            }
+                        } else {                        
+                            enforce(lowChanged);
+                        }
+                    });
+
+                    // Always enforce when the field loses focus
+                    input.addEventListener('blur', () => enforce(lowChanged));
+                    });
+                };
+
+                attach(low,  true);
+                attach(high, false);
+            });
         </script>
     </head>
     <body>
@@ -105,7 +166,7 @@
                 <div class="title">Window Settings</div>
                 <label>
                     <key>Auto-lap on power:</key>
-                    <input type="checkbox" name="autoLapPower">
+                    <input type="checkbox" name="autoLapPower" data-depends-on="!autoLapRanges">
                 </label>
                 <label title="The power threshold that determines when to trigger a lap">
                     <key>&nbsp;&nbsp;- Threshold (w):</key>
@@ -116,6 +177,25 @@
                     <key>&nbsp;&nbsp;- Duration (ms):</key>
                     <input type="range" name="autoLapPowerDuration" min="500" max="2500" step="100"/ data-depends-on="autoLapPower">
                     <input type="number" name="autoLapPowerDuration" min="500" max="2500" step="100" style="--size: 7"/ data-depends-on="autoLapPower">
+                </label>
+                <label title="Automatically trigger a lap with power leaves one range for another.  eg. if power is less than the low range threshold and changes to either between the low and high or above the high, then trigger a lap.">
+                    <key>Auto-lap on ranges:</key>
+                    <input type="checkbox" name="autoLapRanges" data-depends-on="!autoLapPower">
+                </label>
+                <label title="The low power threshold that determines when to trigger a lap">
+                    <key>&nbsp;&nbsp;- Low range threshold: </key>
+                    <input type="range" name="autoLapRangeLow" min="10" max="1000" step="5"/ data-depends-on="autoLapRanges">
+                    <input type="number" name="autoLapRangeLow" min="10" max="1000" step="5" style="--size: 5"/ data-depends-on="autoLapRanges">
+                </label>
+                <label title="The high power threshold that determines when to trigger a lap">
+                    <key>&nbsp;&nbsp;- High range threshold: </key>
+                    <input type="range" name="autoLapRangeHigh" min="10" max="1000" step="5"/ data-depends-on="autoLapRanges">
+                    <input type="number" name="autoLapRangeHigh" min="10" max="1000" step="5" style="--size: 5"/ data-depends-on="autoLapRanges">
+                </label>
+                <label title="How long power needs to go above or below the threshold before triggering a lap">
+                    <key>&nbsp;&nbsp;- Duration (ms):</key>
+                    <input type="range" name="autoLapRangesDuration" min="500" max="2500" step="100"/ data-depends-on="autoLapRanges">
+                    <input type="number" name="autoLapRangesDuration" min="500" max="2500" step="100" style="--size: 7"/ data-depends-on="autoLapRanges">
                 </label>
                 <label>
                     <key>Secondary Data fields:</key>

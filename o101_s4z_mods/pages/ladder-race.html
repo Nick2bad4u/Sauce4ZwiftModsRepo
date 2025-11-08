@@ -26,6 +26,7 @@
                 <div class="title">O101: Ladder Race</div>
                 <div class="filler"></div>
                 <div class="buttons">
+                    <a class="button" onClick="window.location.reload()" title="Reload">&#x21bb;</a>
                     <a class="button open-settings" href="./settings/ladder-race.html?width=500&height=600&child-window"
                        title="Open settings window" target="ladder-race-settings"><ms>settings</ms></a>
                     <div title="Minimize" class="button minimize electron-only"><ms>minimize</ms></div>
@@ -35,10 +36,11 @@
         </div>
         <div id="content">
             <div id="ladderInfo">
-                <div class="ladderheader" onClick="location.reload()">
+                <div class="ladderheader">
                     <div id="myTeam"></div>
                     <div id="opponentTeam"></div>
                     <div id="eventInfo"></div>
+                    <div id="eventPowerUps"></div>
                 </div>
                 <div id="ridersList"></div>
                 </div>

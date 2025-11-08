@@ -5,6 +5,9 @@ import * as o101UiLib from './o101/ui-lib.mjs';
 import * as o101Ext from './o101/extensions.mjs';
 
 // change to rider only if gap > ...??
+// next power ups in overview?
+// event power ups in overview
+// todo save all from init to prevent reset from browser refresh
 
 let settings = {};
 let lastRefreshDate = Date.now() - 99999;
@@ -17,6 +20,7 @@ const state = {
     eventSubgroupId: 0,
     eventStart: Date.now() - 1,
     eventCourse: '',
+    eventPowerUps: [],
     registeredRiders: [],
     nearbyRiders: [],
     finishedRiders: [],
@@ -29,8 +33,8 @@ const powerUpsState = o101Common.initPowerUpsState();
 common.settingsStore.setDefault({
     refreshInterval: 2,
     fontScale: 1,
-    myTeamHeader: 'TFC Firebirds',
-    myTeamBadge: 'TFC',
+    myTeamHeader: 'Team NL Cloud9',
+    myTeamBadge: 'Team NL',
     myTeamRiders: '0',
     opponentTeamHeader: 'The Enemy',
     opponentTeamBadge: 'Enemy',
@@ -39,7 +43,6 @@ common.settingsStore.setDefault({
     showRegisteredRidersOnly: false,
     showWbal: true,
     showRacingScore: false,
-    useNearbyData: false,
     scoringCalculation: 'position',
     showFooter: true,
     manualMode: false,
@@ -48,15 +51,20 @@ common.settingsStore.setDefault({
     autoSwitchRiderInterval: 5,
     teamMaxChars: 15,
     raceEndsMinutes: 15,
-    showNearbyRiders: false
+    showNearbyRiders: false,
+    showLiveData: true,
+    showStats: false,
+    multiLapRace: false
 });
 
 export async function main() {
     common.initInteractionListeners();
-    common.subscribe('groups', handleGroupsData);
     common.subscribe('nearby', handleNearbyData);
     common.settingsStore.addEventListener('changed', render);
     o101Common.initTeamColors();
+    o101Common.initOverRiders();
+    o101Common.initTeamOverRides();
+    o101Common.initRiderStats();    
     o101Common.initNationFlags();
     document.querySelector('#ridersList').addEventListener('click', clickNearbyRider);
 
@@ -84,7 +92,6 @@ function updateSettings() {
         showRegisteredRidersOnly: common.settingsStore.get('showRegisteredRidersOnly'),
         showWbal: common.settingsStore.get('showWbal'),
         showRacingScore: common.settingsStore.get('showRacingScore'),
-        useNearbyData: common.settingsStore.get('useNearbyData'),
         scoringCalculation: common.settingsStore.get('scoringCalculation'),
         showFooter: common.settingsStore.get('showFooter'),
         riderOverviewMinutes: common.settingsStore.get('riderOverviewMinutes'),
@@ -93,7 +100,11 @@ function updateSettings() {
         teamMaxChars: common.settingsStore.get('teamMaxChars'),
         raceEndsMinutes: common.settingsStore.get('raceEndsMinutes'),
         watchingIdOverride: common.settingsStore.get('watchingIdOverride'),
-        showNearbyRiders: common.settingsStore.get('showNearbyRiders')        
+        showNearbyRiders: common.settingsStore.get('showNearbyRiders'),
+        showLiveData: common.settingsStore.get('showLiveData'),
+        showStats: common.settingsStore.get('showStats'),
+        multiLapRace: common.settingsStore.get('multiLapRace'),
+        // eventIdOverride: common.settingsStore.get('eventIdOverride')
     }
 }
 
@@ -112,7 +123,15 @@ async function initializeLadderData() {
         state.registeredRiders = state.nearbyRiders;
 
         const ladderResponse = await fetch('https://ladder.cycleracing.club/whatFixtureShouldIBeIn/' + state.watchingId).then(response=>response.json());
-        if (ladderResponse == null || ladderResponse.length<1) return;
+        if (ladderResponse == null || ladderResponse.length<1) {
+            // const zwiftEvent = await common.rpc.getEvent(settings.ladder.eventIdOverride);
+            // if (zwiftEvent == null) return;
+            // console.log(zwiftEvent);
+
+            // state.eventSubgroupId = zwiftEvent.eventSubgroups[0].id;
+            // state.eventStart = zwiftEvent.eventStart;
+            return;
+        } 
         const eventData = ladderResponse[0];
         console.log(eventData);
 
@@ -124,28 +143,34 @@ async function initializeLadderData() {
         state.eventStart = zwiftEvent.eventStart;
         state.eventCourse = eventData.route;
 
-        settings.ladder.myTeamHeader = eventData.homeTeamName;
-        settings.ladder.myTeamBadge = eventData.homeClub.name;
+        const homeTeamOverride = o101Common.getTeamOverRide(eventData.homeClub.id);
+        settings.ladder.myTeamHeader = (homeTeamOverride!= null) ? homeTeamOverride.name : eventData.homeTeamName;
+        settings.ladder.myTeamBadge = (homeTeamOverride!= null) ? homeTeamOverride.badge : eventData.homeClub.name;
         settings.ladder.myTeamRiders = getRiderIds(eventData.homeSignups);
         state.registeredRiders.push(...settings.ladder.myTeamRiders);
 
-        settings.ladder.opponentTeamHeader = eventData.awayTeamName;
-        settings.ladder.opponentTeamBadge = eventData.awayClub.name;
+        const awayTeamOverride = o101Common.getTeamOverRide(eventData.awayClub.id);
+        settings.ladder.opponentTeamHeader = (awayTeamOverride!= null) ? awayTeamOverride.name : eventData.awayTeamName;
+        settings.ladder.opponentTeamBadge = (awayTeamOverride!= null) ? awayTeamOverride.badge : eventData.awayClub.name;
         settings.ladder.opponentTeamRiders = getRiderIds(eventData.awaySignups);
         state.registeredRiders.push(...settings.ladder.opponentTeamRiders);
 
         settings.ladder.showRegisteredRidersOnly = true;
+        settings.ladder.multiLapRace = zwiftEvent.laps > 0;
 
+        state.eventPowerUps = o101Common.getEventPowerUps(zwiftEvent);
         state.initialized = true;
     }
 }
 
 async function handleNearbyData(data) {
-    if (!settings.ladder.useNearbyData) return;
     if (!refreshData(data)) return;
-    //if (!state.initialized) initializeLadderData();
+    if (!state.initialized) initializeLadderData();
 
-    const nearbyData = data.sort(function(a, b) { return a.gap - b.gap; });
+    const nearbyData = (settings.ladder.multiLapRace)
+        ? data.sort(function(a, b) { return a.eventPosition - b.eventPosition; })
+        : data.sort(function(a, b) { return a.gap - b.gap; });
+    
     let groupsData = [];
     let group =  {
         athletes: [],
@@ -176,14 +201,6 @@ async function handleNearbyData(data) {
     handleLadderData(await createLadderData(groupsData));
 }
 
-async function handleGroupsData(data) {
-    if (settings.ladder.useNearbyData) return;
-    if (!refreshData(data)) return;
-    //if (!state.initialized) initializeLadderData();
-
-    handleLadderData(await createLadderData(data));
-}
-
 async function createLadderData(data) {
     handleAutoSwitchRider(data);
     handleFinishedRiders(await common.rpc.getEventSubgroupResults(state.eventSubgroupId));
@@ -212,6 +229,8 @@ async function createLadderData(data) {
 
     let nearbyRiders = createLadderGroup(99, 0, 'Nearby riders');
     
+
+
     for (let group of data) {
         if (points == 0) continue;
 
@@ -310,7 +329,14 @@ async function handleLadderData(ladderData) {
     let hideEventInfo = true;
     if (eventInfo.notStarted) {
         hideEventInfo = false;
+
+        let pus = '';
+        for(let i=0; i<eventInfo.powerUps.length;i++) {
+            pus += '<img src="././images/pu-' + eventInfo.powerUps[i] + '.png"/>';
+        }
+
         o101UiLib.setValue('#eventInfo', 'Race start at ' + eventInfo.countdown + '<br/>' + eventInfo.course);
+        o101UiLib.setValue('#eventPowerUps', 'Power ups: ' + pus);
     } else {
         scoring = getScoring(ladderData);
 
@@ -329,8 +355,8 @@ async function handleLadderData(ladderData) {
 
     o101UiLib.setValue('#myTeam', '<span>' + getTeamHeader(settings.ladder.myTeamHeader) + '</span><span>' + scoring.myPoints + '</span>');
     o101UiLib.setValue('#opponentTeam', '<span>' + getTeamHeader(settings.ladder.opponentTeamHeader) + '</span><span>' + scoring.opponentPoints + '</span>');
-    o101UiLib.toggleClassByElements(hideEventInfo, 'hidden', ['#eventInfo']);
- 
+    o101UiLib.toggleClassByElements(hideEventInfo, 'hidden', ['#eventInfo', '#eventPowerUps']);
+
     if (eventInfo.showRiderOverview) {
         await renderRiderStats();
     } else {
@@ -410,6 +436,7 @@ const getEventInfo = () => {
 
     return {
         course: state.eventCourse,
+        powerUps: state.eventPowerUps,
         countdown: hours + ':' + minutes + ':' + seconds,
         notStarted: secondsToStart > 0,
         showRiderOverview: secondsToStart/60 >= settings.ladder.riderOverviewMinutes,
@@ -458,8 +485,10 @@ const createRider = (athlete) => {
 
     if (athlete.athlete == null) return rider;
 
+    const overrider = o101Common.getOverRider(id);
+
     rider.watching = athlete.watching;
-    rider.name = o101Common.fmtName(athlete);
+    rider.name = (overrider!= null) ? overrider.alias : o101Common.fmtName(athlete);
     rider.flag = o101Common.fmtFlag(athlete);
     rider.eventSubgroupId = athlete.state.eventSubgroupId;
     rider.racingScore = o101Common.fmtRacingScore(athlete);
@@ -557,7 +586,7 @@ async function addTeamStats(div, header, riders) {
         if (rider == null) continue;
 
         div.appendChild(createRacerStatsDataItem(rider));
-        div.appendChild(createRacerStatsDataSubItem(rider));
+        div.appendChild(createRacerStatsDataSubItem(rider));            
     }
 }
 
@@ -572,14 +601,22 @@ async function getRiderData(id) {
     };
 
     if (athlete != null) {
+        const overrider = o101Common.getOverRider(id);
+
         rider = createRider(athlete);
         rider.id = id;
-        rider.name = o101Common.fmtName({athlete});
+        rider.name = (overrider!= null) ? overrider.alias : o101Common.fmtName({athlete});
         rider.category = athlete.racingCategory ?? '&nbsp;';
         rider.racingScore = o101Common.formatNumber(athlete.racingScore, 0);
         rider.height = o101Common.formatNumber( athlete.height, 0);
         rider.weight = o101Common.formatNumber(athlete.weight, 0);
         rider.flag = o101Common.fmtFlagByCountryCode(athlete.countryCode);
+
+        let teamName = defaultTeamName;
+        if (isMyTeamRider(rider.id)) teamName = settings.ladder.myTeamBadge;
+        if (isOpponentTeamRider(rider.id)) teamName = settings.ladder.opponentTeamBadge;
+
+        rider.team = o101Common.fmtTeamBadgeV2(athlete, true, teamName);
     }
 
     state.data.push(rider);
@@ -597,11 +634,18 @@ function createRacerStatsDataItem(rider) {
 }
 
 function createRacerStatsDataSubItem(rider) {
+    const stats = o101Common.getRiderStats(rider.id);
+    const zrs = rider.racingScore>0 ? rider.racingScore : stats != null ? stats.zrs : 0;
+    const wkg = stats != null ? stats.wkg : '&nbsp;';
+
     return o101UiLib
         .createDiv(['info-item', 'sub', 'divider'])
-        .withChildDiv(['info-item-gaptime-detailed-index'], rider.racingScore>0 ? rider.racingScore : '&nbsp;', null, 'Zwift Racing Score')
-        .withOptionalChildDiv(rider.height != null, ['info-item-draft'], rider.height + ' cm')
-        .withOptionalChildDiv(rider.weight != null, ['info-item-hr'], rider.weight + ' kg');
+        .withOptionalCssClass(rider.watching, ['watching'])
+        .withOptionalCssClass(rider.powerUp.image!='', ['powerUpRemaining'], rider.powerUp)
+        .withChildDiv(['info-item-zrs'], zrs>0 ? zrs : '&nbsp;', null, 'Zwift Racing Score')
+        .withOptionalChildDiv(stats != null, ['info-item-wkgstats'], wkg + ' Wkg')
+        // .withOptionalChildDiv(rider.height != null, ['info-item-height'], rider.height + ' cm')
+        .withOptionalChildDiv(rider.weight != null, ['info-item-weight'], rider.weight + ' kg');
 }
 
 function renderGroupsAndRiders(ladderData) {
@@ -624,7 +668,8 @@ function renderGroupsAndRiders(ladderData) {
             if (rider.finished) {
                 infoGroup.appendChild(createRacerSubDataItemFinished(rider));
             } else {
-                infoGroup.appendChild(createRacerSubDataItem(rider));
+                if (settings.ladder.showLiveData) infoGroup.appendChild(createRacerSubDataItem(rider));
+                if (settings.ladder.showStats) infoGroup.appendChild(createRacerStatsDataSubItem(rider));                
             }
         }
 
@@ -652,19 +697,19 @@ function createLadderGroup(id, speed, header = '') {
     }
 }
 
-let finishPoints = maxPoints;
 function handleFinishedRiders(finishedRiders) {
     if (finishedRiders.length == 0) return;
 
+    state.finishedRiders = [];
+    let finishPoints = maxPoints;
     const sortedFinishedRiders = finishedRiders.sort(function(a, b) { return a.rank - b.rank; });
     const winnerEventDuration = sortedFinishedRiders[0].activityData.durationInMilliseconds;
 
     for(let fr of sortedFinishedRiders) {
-        if (state.finishedRiders.some(r => r.id === fr.athlete.id) || finishPoints == 0) continue;
-
+        const overrider = o101Common.getOverRider(fr.athlete.id);
         let rider = {
             id: fr.athlete.id,
-            name: o101Common.fmtName(fr),
+            name: (overrider!= null) ? overrider.alias : o101Common.fmtName(fr),
             team: '',
             flag: o101Common.fmtFlag(fr),
             power: '0',

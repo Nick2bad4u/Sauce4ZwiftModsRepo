@@ -15,7 +15,7 @@ let beaconSubs = [];
 const allRoutes = await zen.getAllRoutes();
 
 export class SauceElevationProfile {
-    constructor({el, worldList, preferRoute, showMaxLine, showLapMarker, showSegmentStart, showLoopSegments, pinSize, lineType, lineTypeFinish, lineSize, pinColor, showSegmentFinish, minSegmentLength, showNextSegment, showNextSegmentFinish, showMyPin, setAthleteSegmentData, showCompletedLaps, overrideDistance, overrideLaps, yAxisMin, singleLapView, profileZoom, forwardDistance, behindDistance, showTeamMembers, showMarkedRiders, pinColorMarked, showAllRiders, colorScheme, lineTextColor, showRobopacers, showRobopacersGap, showLeaderSweep, gradientOpacity, zoomNextSegment, zoomNextSegmentApproach, zoomFinalKm, zoomSlider, pinName, useCustomPin, customPin, zoomSegmentOnlyWithinApproach, showAllArches, showGroups, showLineAhead, distanceAhead, aheadLineColor, aheadLineType, showNextPowerup, disablePenRouting, zoomRemainingRoute, showCurrentAltitude, showRouteMaxElevation, showXaxis, xAxisIncrements, xAxisInverse, refresh=1000}) {
+    constructor({el, worldList, preferRoute, showMaxLine, showLapMarker, showSegmentStart, showLoopSegments, pinSize, lineType, lineTypeFinish, lineSize, pinColor, showSegmentFinish, minSegmentLength, showNextSegment, showNextSegmentFinish, showMyPin, setAthleteSegmentData, showCompletedLaps, overrideDistance, overrideLaps, yAxisMin, singleLapView, profileZoom, forwardDistance, behindDistance, showTeamMembers, showMarkedRiders, pinColorMarked, showAllRiders, colorScheme, lineTextColor, showRobopacers, showRobopacersGap, showLeaderSweep, gradientOpacity, zoomNextSegment, zoomNextSegmentApproach, zoomFinalKm, zoomSlider, pinName, useCustomPin, customPin, zoomSegmentOnlyWithinApproach, showAllArches, showGroups, showLineAhead, distanceAhead, aheadLineColor, aheadLineType, showNextPowerup, disablePenRouting, zoomRemainingRoute, showCurrentAltitude, showRouteMaxElevation, showXaxis, xAxisIncrements, xAxisInverse, invertSegmentBool, refresh=1000}) {
         this.debugXcoord = false;
         this.debugXcoordDistance = null;
         this.debugPinPlacement = false;
@@ -57,6 +57,7 @@ export class SauceElevationProfile {
         this.lineType = lineType;
         this.lineTypeFinish = lineTypeFinish;
         this.lineSize = lineSize;
+        this.invertSegmentBool = invertSegmentBool;
         this.pinSize = pinSize;
         this.pinColor = pinColor;
         this.pinColorMarked = pinColorMarked;
@@ -113,6 +114,7 @@ export class SauceElevationProfile {
         this.xAxisInverse = xAxisInverse;
         this.xAxisIncrements = xAxisIncrements; 
         this.courseRoads = [];   
+        this.portalRoads = [];
         el.classList.add('sauce-elevation-profile-container');
         this.chartXaxis = ec.init(document.getElementById('xAxis'));  
         this.chart = ec.init(el, 'sauce', {renderer: 'svg'});
@@ -244,7 +246,16 @@ export class SauceElevationProfile {
                     //debugger
                 }
             })
-            rightPanel.addEventListener('click', ev => {                 
+            rightPanel.addEventListener('click', ev => {
+                if (ev.target.textContent) {
+                    const segmentInfo = this.routeInfo.segments.find(x => x.name == ev.target.textContent);
+                    if (segmentInfo) {
+                        window.open(`./segment-data.html?course=${this.courseId}&segment=${segmentInfo.id}`, "segmentData")
+                    } else {
+                        console.log("No segment found for ", ev.target.textContent)
+                    }                
+
+                }                
                 if (ev.ctrlKey) {
                     this.createPOI(ev, self, this.hoverPoint[0]);
                     
@@ -523,6 +534,21 @@ export class SauceElevationProfile {
             this._roadSigs.add(`${id}-${!!reverse}`);  
             //debugger          
             this.setData(this.road.distances, this.road.elevations, this.road.grades, {reverse, markLines});
+            if (this.portalRoads.find(x => x.id == id)) {
+                console.log("Setting portal road distances")
+                this.routeDistances = Array.from(this.road.distances);
+                this.routeElevations = Array.from(this.road.elevations);
+                this.routeGrades = Array.from(this.road.grades);
+            } else {
+                this.routeDistances.length = 0;
+                this.routeElevations.length = 0;
+                this.routeGrades.length = 0;
+            }
+            if (this.showXaxis) {
+                const min = 0;
+                const max = this.road.distances.at(-1);            
+                this.scaleXaxis(min, max);
+            }
         } else {
             this.reverse = undefined;
             this.curvePath = undefined;
@@ -658,11 +684,14 @@ export class SauceElevationProfile {
                             color: this.lineTextColor
                         },
                         label: {
-                            distance: 7,
-                            position: 'insideEndTop',                    
+                            distance: this.invertSegmentBool ? 8 : 10,
+                            position: this.invertSegmentBool ? 'insideEndBottom' : 'insideEndTop',
                             formatter: marklineName,
                             color: this.lineTextColor,
-                            rotate: 90
+                            rotate: this.invertSegmentBool ? -90 : 90,
+                            align: this.invertSegmentBool ? 'left' : 'right',
+                            verticalAlign: 'middle',
+                            offset: this.invertSegmentBool ? [-5, 0] : [-15, 0]
                         }
                     });
                 }
@@ -693,11 +722,13 @@ export class SauceElevationProfile {
                     color: this.lineTextColor
                 },
                 label: {
-                    distance: 7,
-                    position: 'insideMiddleBottom',
+                    distance: this.invertSegmentBool ? 10 : 8,
+                    position: this.invertSegmentBool ? 'insideMiddleTop' : 'insideMiddleBottom',
                     formatter: `LAP`,
                     color: this.lineTextColor,
-                    rotate: 90
+                    rotate: this.invertSegmentBool ? -90 : 90, 
+                    align: this.invertSegmentBool ? 'left' : 'right',
+                    verticalAlign: 'middle'
                 }
             });            
             this._routeLeadinDistance = distances[lapStartIdx];
@@ -748,11 +779,13 @@ export class SauceElevationProfile {
                         color: this.lineTextColor
                     },
                     label: {
-                        distance: 7,
-                        position: 'insideMiddleBottom',
+                        distance: this.invertSegmentBool ? 10 : 8,
+                        position: this.invertSegmentBool ? 'insideMiddleTop' : 'insideMiddleBottom',
                         formatter: `LAP ${lap + 1}`,
                         color: this.lineTextColor,
-                        rotate: 90
+                        rotate: this.invertSegmentBool ? -90 : 90, 
+                        align: this.invertSegmentBool ? 'left' : 'right',
+                        verticalAlign: 'middle'
                     }
                 });
             }
@@ -811,6 +844,9 @@ export class SauceElevationProfile {
             const min = 0;
             const max = this.routeDistances.at(-1);            
             this.scaleXaxis(min, max);
+            document.getElementById("xAxis").style.height = "30px";
+        } else {
+            document.getElementById("xAxis").style.height = "0px";
         }
         /*
         //figuring out axis tickmarks, for possible future use.
@@ -1269,10 +1305,14 @@ export class SauceElevationProfile {
             if (watching.courseId !== this.courseId || this.courseRoads == 0) {
                 await this.setCourse(watching.courseId);
                 this.courseRoads = await common.rpc.getRoads(watching.courseId);
+                this.portalRoads = await common.rpc.getRoads('portal');
             }
             const knownRoute = allRoutes.find(x => x.id == watching.routeId)
             //this.knownRoad = await common.rpc.getRoad(watching.courseId, watching.roadId)
             this.knownRoad = this.courseRoads?.find(x => x.id == watching.roadId);
+            if (!this.knownRoad) {
+                this.knownRoad = this.portalRoads?.find(x => x.id == watching.roadId);
+            }
             this.currentAltitude = watching.altitude;
             //debugger
             if (this.preferRoute) {
@@ -1337,7 +1377,7 @@ export class SauceElevationProfile {
                             }
                         }
                     }
-                    if (watching.laps != this.lapCounter && this.showLapMarker && watching.eventSubgroupId == 0 && this.showCompletedLaps) {                        
+                    if (watching.laps != this.lapCounter && this.showLapMarker && !watching.eventSubgroupId && this.showCompletedLaps) {                        
                         //if (this.routeId != null) { 
                             let chartMarkLines = [];
                             if (this.chart.getOption().series[0].markLine.data) {
@@ -1751,6 +1791,7 @@ export class SauceElevationProfile {
                                     }
                                     //debugger
                                 }
+                                //debugger
                                 if (this.profileZoom && !this.singleLapView && ((this.forwardDistance < this.routeDistances.at(-1)) || this.zoomRemainingRoute)) {
                                     //console.log(xCoord)
                                     let offsetBack = this.behindDistance || 500;
@@ -1843,7 +1884,7 @@ export class SauceElevationProfile {
                                     //let nextSegment = zen.getNextSegment(allMarkLines, xCoord)
                                     //console.log("next segment", nextSegment)
                                     //TODO: fix zoom next segment + show final km combo when in the pen
-                                    if (nextSegment != -1) {
+                                    if (nextSegment && nextSegment != -1) {
                                         let segmentMarkLines = allMarkLines.filter(x => x.id == nextSegment.id && x.repeat == nextSegment.repeat)
                                         let segmentStart = segmentMarkLines[0];
                                         let segmentFinish = segmentMarkLines[1];
@@ -2305,7 +2346,7 @@ export class SauceElevationProfile {
                                 let lineCoord;
                                 //debugger
                                 if (!this.routeId) {
-                                    lineCoord = watching.reverse ? xCoord - parseInt(this.distanceAhead) : xCoord + parseInt(this.distanceAhead)
+                                    lineCoord = watching?.reverse ? xCoord - parseInt(this.distanceAhead) : xCoord + parseInt(this.distanceAhead)
                                 } else {
                                     lineCoord = xCoord + parseInt(this.distanceAhead)
                                 }

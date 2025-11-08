@@ -3,6 +3,7 @@ import * as common from '/pages/src/common.mjs';
 import * as zen from './segments-xCoord.mjs';
 let dbSegments = await zen.openSegmentsDB();
 let dbSegmentConfig = await zen.openSegmentConfigDB();
+let dbTeams = await zen.openTeamsDB();
 await zen.cleanupSegmentsDB(dbSegments);
 await zen.cleanupSegmentsDB(dbSegments, {live: true});
 await zen.cleanupSegmentConfigDB(dbSegmentConfig);
@@ -31,10 +32,20 @@ let allPointsTableVisible = true;
 let rotateTableInterval = settings.rotateInterval * 1000 || 10000;
 const pointsResultsDiv = document.getElementById("pointsResults");
 const lastSegmentPointsResultsDiv = document.getElementById("lastSegmentPointsResults");
+if (pointsResultsDiv) {
+    console.log("Adding resize and scroll listeners")
+    pointsResultsDiv.addEventListener('scroll', showTeamMateRows);
+    lastSegmentPointsResultsDiv.addEventListener('scroll', showTeamMateRows);
+    window.addEventListener('resize', showTeamMateRows);
+    
+}
+const lastSegmentImportantScoresDiv = document.getElementById("lastSegmentImportantScores");
+const importantScoresDiv = document.getElementById("importantScores");
 const pointsTitleDiv = document.getElementById("pointsTitle");
 function rotateVisibleTable(options) {
     
     if (settings.rotateTotalLast) {
+        showTeamMateRows();
         lastRotationTS = Date.now();
         //console.log("Rotating table at ", new Date())
         if (options.forceLast) {
@@ -45,11 +56,15 @@ function rotateVisibleTable(options) {
         pointsResultsDiv.style.display = allPointsTableVisible ? "" : "none";
         lastSegmentPointsResultsDiv.style.display = allPointsTableVisible ? "none" : "";
         pointsTitleDiv.style.display = allPointsTableVisible ? "none" : "";
+        lastSegmentImportantScoresDiv.style.display = allPointsTableVisible ? "none" : "";
+        importantScoresDiv.style.display = allPointsTableVisible ? "" : "none";
     } else {
         //console.log("Rotation disabled")
         pointsResultsDiv.style.display = "";
         lastSegmentPointsResultsDiv.style.display = "none";   
-        pointsTitleDiv.style.display = "none";     
+        pointsTitleDiv.style.display = "none";   
+        lastSegmentImportantScoresDiv.style.display = "none";  
+        importantScoresDiv.style.display = "";
     }
 }
 //let rotationInterval = setInterval(rotateVisibleTable, rotateTableInterval);
@@ -75,8 +90,13 @@ common.settingsStore.setDefault({
     femaleOnly: false,
     lineSpacing: 1.2,
     showTeamScore: false,
+    useCustomTeams: false,
     solidBackground: false,
     backgroundColor: '#00ff00',
+    stickyWatching: true,
+    stickyTeammate: true,
+    stickyMarked: true,
+    showUnknownTeam: false
 });
 /*
 common.settingsStore.addEventListener('changed', ev => {
@@ -132,7 +152,7 @@ const formatTime = (milliseconds,timePrecision) => {
 async function getKnownRacersV2(watching, currentEventConfig) {
     let eventSubgroupId;
     let segmentData;
-    if (watching.state.eventSubgroupId == 0 && lastKnownSG.eventSubgroupId > 0) {
+    if (!watching.state.eventSubgroupId && lastKnownSG.eventSubgroupId > 0) {
         eventSubgroupId = lastKnownSG.eventSubgroupId;
         segmentData = lastKnownSegmentData;
     } else {
@@ -204,7 +224,7 @@ async function verifyRacers() {
             if (!racerState) {
                 console.log("no playerState for", racer.athleteId)
                 racerStatus.noPlayerState = true;
-            } else if (racerState.eventSubgroupId != racer.eventSubgroupId || racerState.eventSubgroupId == 0) {
+            } else if (racerState.eventSubgroupId != racer.eventSubgroupId || !racerState.eventSubgroupId) {
                 const racerLeft = await common.rpc.getAthlete(racer.athleteId);
                 if (raceResults.find(x => x.profileId == racer.athleteId)) {
                     racerStatus.finishedEvent = true;
@@ -272,7 +292,7 @@ async function getKnownRacers(watching) {
     // todo - deal with sg = 0 after race is over
     let eventSubgroupId;
     let segmentData;
-    if (watching.state.eventSubgroupId == 0 && lastKnownSG.eventSubgroupId > 0) {
+    if (!watching.state.eventSubgroupId && lastKnownSG.eventSubgroupId > 0) {
         eventSubgroupId = lastKnownSG.eventSubgroupId;
         segmentData = lastKnownSegmentData;
     } else {
@@ -397,7 +417,7 @@ async function monitorAllCats(eventSubgroupId, currentEventConfig) {
 async function getAllSegmentResults(watching, currentEventConfig) {
     let eventSubgroupId;
     let segmentData;    
-    if (watching.state.eventSubgroupId == 0 && lastKnownSG.eventSubgroupId > 0) {
+    if (!watching.state.eventSubgroupId && lastKnownSG.eventSubgroupId > 0) {
         eventSubgroupId = lastKnownSG.eventSubgroupId;
         segmentData = lastKnownSegmentData;
     } else {
@@ -446,7 +466,7 @@ async function getAllSegmentResults(watching, currentEventConfig) {
 
 async function getRaceResults(watching) {
     let eventSubgroupId;
-    if (watching.state.eventSubgroupId == 0 && lastKnownSG.eventSubgroupId > 0) {
+    if (!watching.state.eventSubgroupId && lastKnownSG.eventSubgroupId > 0) {
         eventSubgroupId = lastKnownSG.eventSubgroupId;
     } else {
         eventSubgroupId = watching.state.eventSubgroupId;
@@ -469,7 +489,7 @@ async function processResults(watching, dbResults, currentEventConfig) {
     //let eventSubgroupId = watching.state.eventSubgroupId;
     let eventSubgroupId;
     let segmentData;
-    if (watching.state.eventSubgroupId == 0 && lastKnownSG.eventSubgroupId > 0) {
+    if (!watching.state.eventSubgroupId && lastKnownSG.eventSubgroupId > 0) {
         eventSubgroupId = lastKnownSG.eventSubgroupId;
         segmentData = lastKnownSegmentData;
         //console.log("Using last known segment data")
@@ -545,7 +565,7 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
         uniqueSegmentIds = getUniqueValues(currentEventConfig.segments, "segmentId")
         for (let segment of uniqueSegmentIds) {
             //console.log(segment, eventResults)
-            const thisSegmentResults = eventResults.filter(x => x.segmentId == segment)
+            const thisSegmentResults = eventResults[0] ? eventResults.filter(x => x.segmentId == segment) : []
             if (thisSegmentResults.length > 0) {
                 const ftsResults = thisSegmentResults.flatMap(x => x.fts);
                 ftsResults.sort((a,b) => a.elapsed - b.elapsed);
@@ -563,14 +583,23 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
     for (let segRes of eventResults) {
         //debugger
         let segResPerEvent = [];
+        let customScoring = false;
         if (currentEventConfig.ftsPerEvent) {
             segResPerEvent = perEventResults.find(x => x.segmentId == segRes.segmentId);
         }
         if (currentEventConfig) {
-            segmentRepeat = currentEventConfig.segments.find(x => x.segmentId == segRes.segmentId && x.repeat == segRes.repeat)
-            //debugger
+            segmentRepeat = segRes ? currentEventConfig.segments.find(x => x.segmentId == segRes.segmentId && x.repeat == segRes.repeat) : []
+            const overrideConfig = settings.configOverride ? JSON.parse(settings.configOverride) : null;
+            if (overrideConfig?.eventSubgroupId == currentEventConfig.eventSubgroupId) {
+                customScoring = true;
+                const thisSegmentConfig = overrideConfig.segments.find(x => x.segmentId == segmentRepeat.segmentId && x.repeat == segmentRepeat.repeat);
+                if (thisSegmentConfig) {
+                    segmentRepeat.enabled = thisSegmentConfig.enabled;
+                }
+                //debugger
+            }
             if (!segmentRepeat.enabled) {
-                //console.log("NOT scoring", segmentRepeat.name, "repeat", segmentRepeat.repeat)
+                console.log("NOT scoring", segmentRepeat.name, "repeat", segmentRepeat.repeat, "custom scoring?", customScoring)
                 continue; 
             }
             scoreFormats = segmentRepeat.scoreFormat.split(",");
@@ -583,10 +612,17 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
                 let bonusScores = [];
                 if (scoreFormat == "fts") {
                     if (settings.femaleOnly) {
+                        console.log("Getting female only FTS results")
                         if (currentEventConfig.ftsPerEvent) {
-                            perEventResults.fts = perEventResults.fts.filter(x => x.gender == "female");
+                            console.log("Using per event FTS results")
+                            //debugger
+                            //perEventResults.fts = perEventResults.fts.filter(x => x.gender == "female");
+                            segResPerEvent.fts = segResPerEvent.fts.filter(x => x.gender == "female");
+                            console.log("female only per event FTS results", segResPerEvent.fts)
                         } else {
+                            console.log("Using per segment FTS results")
                             segRes.fts = segRes.fts.filter(x => x.gender == "female")
+                            console.log("female only per segment FTS results", segRes.fts)
                         }
                     }
                     scores = currentEventConfig.ftsScoreFormat;
@@ -595,9 +631,11 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
                     if (ftsBonus !== "") {
                         bonusScores = zen.getScoreFormat(ftsBonus, 1)
                     }
-                } else if (scoreFormat == "fal") {
+                } else if (scoreFormat == "fal") {                    
                     if (settings.femaleOnly) {
+                        console.log("Getting female only FAL results")
                         segRes.fal = segRes.fal.filter(x => x.gender == "female")
+                        console.log("female only FAL results", segRes.fal)
                     }
                     scores = currentEventConfig.falScoreFormat;
                     scoreStep = currentEventConfig.falStep;
@@ -606,10 +644,28 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
                         bonusScores = zen.getScoreFormat(falBonus, 1)
                     }
                 }
+                let regex = /[a-z]\.\./i; //dot notation format
+                const eventRacers = allKnownRacers.filter(x => x.eventSubgroupId == currentEventConfig.eventSubgroupId)
+                if (regex.test(scores)) {
+                    scores = scores.replace(regex, `${eventRacers.length}..`)
+                }
+                regex = /[a-z]\:/i; //matlab format
+                if (regex.test(scores)) {
+                    scores = scores.replace(regex, `${eventRacers.length}:`)
+                }
                 let scorePoints = zen.getScoreFormat(scores, scoreStep);        
                 let pointsCounter = scorePoints.length
                 
-                
+                const ties = zen.findTies(segRes[scoreFormat], scoreFormat)
+                if (ties.length > 0) {
+                    //found a tie, adjust the scoring to reflect the tie
+                    //console.log(`Found one or more ${scoreFormat} ties!`, ties)
+                    for (let tie of ties) {                                
+                        scorePoints[tie.idxTie] = scorePoints[tie.idxTiedWith]
+                        //console.log(segRes[scoreFormat][tie.idxTie], segRes[scoreFormat][tie.idxTiedWith])
+                    }
+                    //debugger
+                }
                 //debugger
                 //console.log("Scoring ", pointsCounter, "racers as", scorePoints)
                 for (let i = 0; i < pointsCounter; i++) {  
@@ -702,7 +758,7 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
                                 //points--;
                             }
                         }
-                    } else {                 
+                    } else {
                         if (segRes[scoreFormat].length > 0 && segRes[scoreFormat][i]) {
                             let prevScore = racerScores.find(x => x.athleteId == segRes[scoreFormat][i].athleteId)
                             let scoreToAdd;
@@ -749,7 +805,7 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
             }
         }
     }
-    const finScores = currentEventConfig.finScoreFormat;
+    let finScores = currentEventConfig.finScoreFormat;
     const finScoreStep = currentEventConfig.finStep;
     let scorePoints =[];
     let bonusScores = [];
@@ -758,6 +814,15 @@ async function scoreResults(eventResults, currentEventConfig, lastSegment=false)
         if (finBonus !== "") {
             bonusScores = zen.getScoreFormat(finBonus, 1);
             //console.log("FIN bonus points",bonusScores)
+        }
+        let regex = /[a-z]\.\./i; //dot notation format
+        const eventRacers = allKnownRacers.filter(x => x.eventSubgroupId == currentEventConfig.eventSubgroupId)
+        if (regex.test(finScores)) {
+            finScores = finScores.replace(regex, `${eventRacers.length}..`)
+        }
+        regex = /[a-z]\:/i; //matlab format
+        if (regex.test(finScores)) {
+            finScores = finScores.replace(regex, `${eventRacers.length}:`)
         }
         scorePoints = zen.getScoreFormat(finScores, finScoreStep);  
         //console.log("FIN score points",scorePoints)
@@ -847,17 +912,21 @@ function evaluateVisibility(scoreType, ignoreFIN = false) {
     //debugger
 }
 
-function buildPointsTable(racerScores, athletes, lastSegmentName = "", ignoreFIN = false) {
+async function buildPointsTable(racerScores, athletes, lastSegmentName = "", ignoreFIN = false) {
     pointsTitleDiv.innerHTML = lastSegmentName;
-    let tableFinalOutput = `<table id='pointsTable'><thead><th>Rank</th><th>Name</th><th ${evaluateVisibility('FAL')}>FAL</th><th ${evaluateVisibility('FTS')}>FTS</th><th ${evaluateVisibility('FIN', ignoreFIN)}>FIN</th><th>Total</th></thead><tbody>`;
+    const pointsTableId = lastSegmentName == "" ? "pointsTable" : "pointsTableLast"
+    let tableFinalOutput = `<table id=${pointsTableId}><thead><th>Rank</th><th>Name</th><th ${evaluateVisibility('FAL')}>FAL</th><th ${evaluateVisibility('FTS')}>FTS</th><th ${evaluateVisibility('FIN', ignoreFIN)}>FIN</th><th>Total</th></thead><tbody>`;
     let tableOutput = "";
     let rank = 1;
+    let teamRank = 1;
     let maxRacers = settings.maxRacersToDisplay;
     if (maxRacers == 0 || maxRacers == null) {
         maxRacers = Infinity;
     }
     //console.log("Max racers to display:", maxRacers)
-    
+    const allTeamScores = [];
+    const customTeams = settings.useCustomTeams ? await zen.getExistingTeams(dbTeams) : [];
+    const teamAssignments = settings.useCustomTeams ? await zen.getTeamAssignments(dbTeams) : [];
     const teamScore = {
         ftsPoints: 0,
         falPoints: 0,
@@ -900,6 +969,61 @@ function buildPointsTable(racerScores, athletes, lastSegmentName = "", ignoreFIN
             teamScore.finPoints += racer.finPoints;
             teamScore.totalPoints += racer.pointTotal;
         }
+        if (settings.useCustomTeams) {
+            //console.log("Checking custom teams")
+            const customTeam = teamAssignments.find(x => x.athleteId == racer.athleteId)
+            let customTeamName = customTeam ? (customTeams.find(x => x.id == parseInt(customTeam.team))).team : "";
+            if (!customTeamName) {
+                customTeamName = athlete?.athlete?.team || null;
+            }
+            teamBadge = customTeam ? common.teamBadge(customTeamName) : teamBadge;
+            let currentTeamScore = allTeamScores.find(x => x.name == customTeamName);
+            
+            if (currentTeamScore) {
+                //console.log("Found previous score for", customTeamName, currentTeamScore)
+                //console.log("Adding racer scores of ", racer)
+                currentTeamScore.ftsPoints += racer.ftsPointTotal;
+                currentTeamScore.falPoints += racer.falPointTotal;
+                currentTeamScore.finPoints += racer.finPoints;
+                currentTeamScore.totalPoints += racer.pointTotal;
+                //console.log("Scores after changes", currentTeamScore)
+            } else {
+                //console.log("Adding new team score for", customTeamName)  
+                
+                const newTeamScore = {
+                    name: customTeamName || "Unknown",
+                    ftsPoints: racer.ftsPointTotal,
+                    falPoints: racer.falPointTotal,
+                    finPoints: racer.finPoints,
+                    totalPoints: racer.pointTotal
+                };
+                //console.log("New team score for", customTeamName, newTeamScore)
+                if (newTeamScore.name == "Unknown") {
+                    const unknownTeam = allTeamScores.find(x => x.name == "Unknown")
+                    if (unknownTeam) {
+                        //console.log("Unknown team before", unknownTeam)
+                        //console.log("new team score", newTeamScore)
+                        unknownTeam.ftsPoints += newTeamScore.ftsPoints;
+                        unknownTeam.falPoints += newTeamScore.falPoints;
+                        unknownTeam.finPoints += newTeamScore.finPoints;
+                        unknownTeam.totalPoints += newTeamScore.totalPoints;
+                    } else {
+                        //console.log("Creating new team", newTeamScore)
+                        allTeamScores.push(newTeamScore);
+                    }
+                    //console.log("Unknown team after", unknownTeam)
+                } else {
+                    allTeamScores.push(newTeamScore);
+                }
+                
+            
+            }
+            if (lastSegmentName == "") {
+                //console.log("allTeamScores", allTeamScores);
+            } else {
+                //console.log("allTeamScores for segment", lastSegmentName, allTeamScores)
+            }
+        }
         const racerStatus = allKnownRacersStatus.get(racer.athleteId);
         let status = "";
         if (racerStatus && racerStatus.leftEvent) {
@@ -910,8 +1034,27 @@ function buildPointsTable(racerScores, athletes, lastSegmentName = "", ignoreFIN
         tableOutput += isWatching ? "<tr class=watching>" : isTeamMate ? "<tr class=teammate>" : isMarked ? "<tr class=marked>" : "<tr>"
         tableOutput += `<td>${rank}</td><td><span id="riderName"><a href="/pages/profile.html?id=${racer.athleteId}&windowType=profile" target="profile">${sanitizedName}${status}</a></span><div id="info-item-team">${teamBadge}</div></td><td ${evaluateVisibility('FAL')}>${racer.falPointTotal}</td><td ${evaluateVisibility('FTS')}>${racer.ftsPointTotal}</td><td ${evaluateVisibility('FIN', ignoreFIN)}>${racer.finPoints}</td><td>${racer.pointTotal}</td></tr>`
         rank++;
-    }    
-    if (settings.showTeamScore) {
+    }  
+    if (settings.useCustomTeams && lastSegmentName == "") {
+        console.log("Event Team scores after all racers", allTeamScores)
+    } else {
+        console.log("Team scores after all racers for segment",lastSegmentName, allTeamScores)
+    }
+    if (settings.useCustomTeams) {        
+        if (settings.showTeamScore) {
+            teamScore.name = "My team"
+            allTeamScores.push(teamScore)
+        }
+        allTeamScores.sort((a,b) => b.totalPoints - a.totalPoints)
+        for (let teamScore of allTeamScores) {
+            if (teamScore.name == "Unknown" && !settings.showUnknownTeam) {
+                continue;
+            }
+            let teamScoreOutput = `<tr><td>${teamRank}</td><td><div id="info-item-team-l">${common.teamBadge(teamScore.name)}</div></td><td ${evaluateVisibility('FAL')}>${teamScore.falPoints}</td><td ${evaluateVisibility('FTS')}>${teamScore.ftsPoints}</td><td ${evaluateVisibility('FIN', ignoreFIN)}>${teamScore.finPoints}</td><td>${teamScore.totalPoints}</td></tr>`;
+            tableFinalOutput += teamScoreOutput;
+            teamRank++;
+        }
+    } else if (settings.showTeamScore) {
         let teamScoreOutput = `<tr class=teammate><td></td><td>Team<div id="info-item-team">${common.teamBadge(watchingTeam)}</div></td><td ${evaluateVisibility('FAL')}>${teamScore.falPoints}</td><td ${evaluateVisibility('FTS')}>${teamScore.ftsPoints}</td><td ${evaluateVisibility('FIN', ignoreFIN)}>${teamScore.finPoints}</td><td>${teamScore.totalPoints}</td></tr>`;
         tableFinalOutput += teamScoreOutput;
     }
@@ -926,17 +1069,86 @@ function buildPointsTable(racerScores, athletes, lastSegmentName = "", ignoreFIN
 async function displayResults(racerScores, lastSegmentScores, lastSegmentName) {
     //console.log("Scores to process:", racerScores)
     //let scoreFormat = settings.FTSorFAL;
+    let customTitle = "";
+    const overrideConfig = settings.configOverride ? JSON.parse(settings.configOverride) : null;
+    if (overrideConfig && overrideConfig.eventSubgroupId == currentEventConfig.eventSubgroupId) {
+        customTitle = overrideConfig.customTitle || "";
+        document.getElementById("customTitle").style.display = "block";
+        document.getElementById("customTitle").innerText = customTitle;
+    }
     const eventSubgroupId = currentEventConfig.eventSubgroupId;
-    const pointsResultsDiv = document.getElementById("pointsResults");
+    
     const lastSegmentPointsResultsDiv = document.getElementById("lastSegmentPointsResults");
+    
     const athleteIds = racerScores.map(x => x.athleteId);
     const athletes = await common.rpc.getAthletesData(athleteIds);
     //pointsResultsDiv.innerHTML = "";
-    const tableFinalOutput = buildPointsTable(racerScores, athletes);
-    const tableLastSegmentOutput = buildPointsTable(lastSegmentScores, athletes, lastSegmentName, true);
+    const tableFinalOutput = await buildPointsTable(racerScores, athletes);
+    const tableLastSegmentOutput = await buildPointsTable(lastSegmentScores, athletes, lastSegmentName, true);
+    //const tableLastSegmentOutput = "";
     pointsResultsDiv.innerHTML = tableFinalOutput;
     lastSegmentPointsResultsDiv.innerHTML = tableLastSegmentOutput;
+    //showTeamMateRows({lastSegment: false});
+    //showTeamMateRows({lastSegment: true});
+    showTeamMateRows();
     
+}
+
+function isRowVisible(row, div) {
+    const rect = row.getBoundingClientRect();
+    const divRect = div.getBoundingClientRect();
+    return rect.bottom > divRect.top && rect.top < divRect.bottom;
+}
+
+function showTeamMateRows() {
+    //console.log("lastSegment?", options.lastSegment)
+    //const pointsDivName = options.lastSegment ? "lastSegmentPointsResults" : "pointsResults";
+    //console.log("pointsDivName", pointsDivName)
+    let pointsTable = document.getElementById("pointsTable");
+    let importantScores = document.getElementById("importantScores")
+    let pointsDiv = document.getElementById("pointsResults");
+    
+    if (pointsDiv.style.display == "none") {
+        pointsTable = document.getElementById("pointsTableLast");
+        importantScores = document.getElementById("lastSegmentImportantScores")
+        pointsDiv = document.getElementById("lastSegmentPointsResults");
+    }
+    
+    //const importantScoresDivName = options.lastSegment ? "lastSegmentImportantScores" : "importantScores";
+    //const importantScores = document.getElementById(importantScoresDivName)
+    let importantClasses = '';
+    if (settings.stickyWatching) {
+        importantClasses = 'tr.watching,'
+    }
+    if (settings.stickyMarked) {
+        importantClasses += 'tr.marked,'
+    }
+    if (settings.stickyTeammate) {
+        importantClasses += 'tr.teammate'
+    }
+    let teammateRows = [];
+    if (importantClasses != "" && pointsTable) {
+        importantClasses = importantClasses.replace(/,$/, '');
+        teammateRows = Array.from(pointsTable.querySelectorAll(importantClasses));        
+    }
+    const hiddenTeammates = teammateRows.filter(row => !isRowVisible(row, pointsDiv));
+    //console.log("hiddenTeamates", hiddenTeammates)
+    let teamMateTableOutput;
+    if (hiddenTeammates.length == 0) {
+        importantScores.innerHTML = 0;
+    } else {
+        teamMateTableOutput = "<table id='stickyTable'>";        
+        
+        for (let teamMate of hiddenTeammates) {
+            teamMateTableOutput += `<tr class=${teamMate.classList[0]}>`;
+            for (let cell of teamMate.cells) {
+                teamMateTableOutput += `<td style=display:${cell.style.display}>${cell.innerHTML}</td>`;
+            }
+            teamMateTableOutput += "</tr>";
+        }
+        teamMateTableOutput += "</table>";
+    }
+    importantScores.innerHTML = teamMateTableOutput || "";
 }
 
 function getPreviewData() {
@@ -1035,10 +1247,7 @@ async function getLeaderboard(watching) {
                 }
             }
         }
-        if (Date.now() - lastVerification > 30000 && !busyVerifying && allKnownRacers.length > 0) {
-            //console.log("Verifying racers")
-            verifyRacers();
-        }
+        
         if ((Date.now() - refresh) > refreshRate) {
             //console.log("not in an event")
             refresh = Date.now();
@@ -1067,7 +1276,7 @@ async function getLeaderboard(watching) {
             }
             */
             let eventSubgroupId;
-            if (watching.state.eventSubgroupId == 0 && lastKnownSG.eventSubgroupId > 0) {
+            if (!watching.state.eventSubgroupId && lastKnownSG.eventSubgroupId > 0) {
                 eventSubgroupId = lastKnownSG.eventSubgroupId;
             } else {
                 eventSubgroupId = watching.state.eventSubgroupId;
@@ -1112,6 +1321,10 @@ async function getLeaderboard(watching) {
             }
             //debugger
         }
+        if (Date.now() - lastVerification > 30000 && !busyVerifying && allKnownRacers.length > 0) {
+            //console.log("Verifying racers")
+            verifyRacers();
+        }
     } else {
         
     }
@@ -1142,6 +1355,7 @@ export async function main() {
 
     common.settingsStore.addEventListener('changed', ev => {
         const changed = ev.data.changed; 
+        //console.log(changed)
         if (changed.has('solidBackground') || changed.has('backgroundColor')) {            
             setBackground();
         } 
@@ -1162,6 +1376,10 @@ export async function main() {
         }
         if (changed.has('solidBackground') || changed.has('backgroundColor')) {            
             setBackground();
+        }
+        if (changed.has('configOverride')) {
+            const newConfig = JSON.parse(common.settingsStore.get('configOverride'));
+            console.log("Event override changed ", newConfig)
         }
         settings = common.settingsStore.get();
     });

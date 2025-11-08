@@ -17,6 +17,12 @@ let lastKnownSegmentData;
 let currentEventConfig;
 let watchingTeam;
 let refresh = Date.now() - 2000000;
+let lastEventResults;
+let lastEventName;
+let lastEventPen;
+let lastEventId;
+let lastEventSegmentScores;
+let lastEventRacerScores;
 const doc = document.documentElement;
 doc.style.setProperty('--font-scale', common.settingsStore.get('fontScale') || 1);  
 doc.querySelector('#titlebar').classList.add('always-visible');
@@ -38,7 +44,8 @@ common.settingsStore.setDefault({
         eventSubgroupStart: 0
     },
     showTeamBadges: true,
-    badgeScale: 0.7
+    badgeScale: 0.7,
+    fontScale: 1
 });
 
 let settings = common.settingsStore.get();
@@ -209,7 +216,32 @@ async function scoreResults(eventResults, currentEventConfig) {
                 let scorePoints = zen.getScoreFormat(scores, scoreStep);        
                 let pointsCounter = scorePoints.length
                 
-                
+                let ties;
+                if (currentEventConfig.ftsPerEvent && scoreFormat == "fts") {
+                    //console.log("Checking FTS per event ties in ", segResPerEvent[scoreFormat])
+                    ties = zen.findTies(segResPerEvent[scoreFormat], scoreFormat)
+                } else {
+                    //console.log(`Checking ${scoreFormat} ties in `, segRes[scoreFormat])
+                    ties = zen.findTies(segRes[scoreFormat], scoreFormat)
+                }
+                if (ties.length > 0) {
+                    //found a tie, adjust the scoring to reflect the tie
+                    console.log(`Found one or more ${scoreFormat} ties!`, ties)
+                    for (let tie of ties) {  
+                        if (tie.idxTie <= pointsCounter) {
+                            scorePoints[tie.idxTie] = scorePoints[tie.idxTiedWith]
+                            if (currentEventConfig.ftsPerEvent && scoreFormat == "fts") {
+                                console.log(segResPerEvent[scoreFormat][tie.idxTie], segResPerEvent[scoreFormat][tie.idxTiedWith])
+                                console.log("Adjusted scorePoints", scorePoints)
+                                //debugger
+                            } else {
+                                console.log(segRes[scoreFormat][tie.idxTie], segRes[scoreFormat][tie.idxTiedWith])
+                                console.log("Adjusted scorePoints", scorePoints)
+                            }
+                        }
+                    }
+                    //debugger
+                }
                 //debugger
                 //console.log("Scoring ", pointsCounter, "racers as", scorePoints)
                 for (let i = 0; i < pointsCounter; i++) { 
@@ -256,11 +288,21 @@ async function scoreResults(eventResults, currentEventConfig) {
                                         ftsScore.ftsPoints = scoreToAdd;
                                         ftsScoringResults.push(ftsScore);
                                     }
-                                    segmentPointBreakdown.fts.push({
-                                        athleteId: segRes[scoreFormat][i].athleteId,
-                                        name: segRes[scoreFormat][i].firstName + " " + segRes[scoreFormat][i].lastName,
-                                        points: scoreToAdd
-                                    })
+                                    if (segRes.fts.length > i) {
+                                        segmentPointBreakdown.fts.push({
+                                            athleteId: segRes[scoreFormat][i].athleteId,
+                                            name: segRes[scoreFormat][i].firstName + " " + segRes[scoreFormat][i].lastName,
+                                            points: scoreToAdd,
+                                            id: segRes.fts[i].id
+                                        })                          
+                                    } else {
+                                        segmentPointBreakdown.fts.push({
+                                            athleteId: "n/a",
+                                            name: "n/a",
+                                            points: "n/a",
+                                            id: null
+                                        })
+                                    }
                                     //console.log("ftsScoringResults", ftsScoringResults);
                                 }
                                 //points--;
@@ -291,11 +333,21 @@ async function scoreResults(eventResults, currentEventConfig) {
                                         ftsScore.ftsPoints = scoreToAdd;
                                         ftsScoringResults.push(ftsScore);
                                     }
-                                    segmentPointBreakdown.fts.push({
-                                        athleteId: segRes[scoreFormat][i]?.athleteId,
-                                        name: segRes[scoreFormat][i]?.firstName + " " + segRes[scoreFormat][i]?.lastName,
-                                        points: scoreToAdd
-                                    })
+                                    if (segRes.fts.length > i) {
+                                        segmentPointBreakdown.fts.push({
+                                            athleteId: segRes[scoreFormat][i]?.athleteId,
+                                            name: segRes[scoreFormat][i]?.firstName + " " + segRes[scoreFormat][i]?.lastName,
+                                            points: scoreToAdd,
+                                            id: segRes.fts.length > i ? segRes.fts[i].id : null
+                                        })
+                                    } else {
+                                        segmentPointBreakdown.fts.push({
+                                            athleteId: "n/a",
+                                            name: "n/a",
+                                            points: "n/a",
+                                            id: null
+                                        })
+                                    }
                                     //console.log("ftsScoringResults", ftsScoringResults);
                                 }
                                 //points--;
@@ -383,10 +435,10 @@ async function scoreResults(eventResults, currentEventConfig) {
         const finBonus = currentEventConfig.finBonus;
         if (finBonus !== "") {
             bonusScores = zen.getScoreFormat(finBonus, 1);
-            console.log("FIN bonus points",bonusScores)
+            //console.log("FIN bonus points",bonusScores)
         }
         scorePoints = zen.getScoreFormat(finScores, finScoreStep); 
-        console.log("FIN score points",scorePoints)
+        //console.log("FIN score points",scorePoints)
     }
     let res = await common.rpc.getEventSubgroupResults(currentEventConfig.eventSubgroupId);
     raceResults = [...res];
@@ -400,7 +452,7 @@ async function scoreResults(eventResults, currentEventConfig) {
     });
     */
     if (raceResults.length > 0) {
-        console.log("raceResults",raceResults)
+        //console.log("raceResults",raceResults)
         const femaleOnly = document.getElementById("femaleOnly").checked;
         if (femaleOnly) {
             raceResults = raceResults.filter(x => x.athlete.gender == "female");
@@ -440,7 +492,7 @@ async function scoreResults(eventResults, currentEventConfig) {
                     racer.finPoints = 0;
                 }
                 if (racerResult.rank <= bonusPointsCounter) {
-                    console.log("Adding", bonusScores[racerResult.rank - 1], "bonus FIN points to",racer.name )
+                    //console.log("Adding", bonusScores[racerResult.rank - 1], "bonus FIN points to",racer.name )
                     racer.finPoints += bonusScores[racerResult.rank - 1];
                 }
                 //debugger
@@ -456,7 +508,7 @@ async function scoreResults(eventResults, currentEventConfig) {
         racer.pointTotal = racer.ftsPointTotal + racer.falPointTotal + racer.finPoints;
     }  
     console.log("Racer scores",racerScores)  
-    return [racerScores, segmentScores];
+    return [racerScores, segmentScores, perEventResults];
 }
 
 function evaluateVisibility(scoreType, currentEventConfig) {
@@ -485,9 +537,11 @@ function evaluateVisibility(scoreType, currentEventConfig) {
     //debugger
 }
 
-async function displayResults(racerScores, segmentScores, sgConfig, eventResults) {
+async function displayResults(racerScores, segmentScores, sgConfig, eventResults, perEventResults) {
     //console.log("Scores to process:", racerScores)
     //let scoreFormat = settings.FTSorFAL;
+    lastEventSegmentScores = segmentScores;
+    lastEventRacerScores = racerScores;
     const pointsResultsDiv = document.getElementById("pointsResults")
     const selectedView = document.querySelector('input[name="radioView"]:checked');
     //debugger
@@ -521,9 +575,27 @@ async function displayResults(racerScores, segmentScores, sgConfig, eventResults
             tableOutput += `<td>${rank}</td><td><span id="riderName">${sanitizedName}</span><div id="info-item-team">${teamBadge}</div></td><td ${evaluateVisibility('FAL',sgConfig)}>${racer.falPointTotal}</td><td ${evaluateVisibility('FTS',sgConfig)}>${racer.ftsPointTotal}</td><td ${evaluateVisibility('FIN',sgConfig)}>${racer.finPoints}</td><td>${racer.pointTotal}</td></tr>`
             tableOutput += `<tr class='hidden'><td><td colspan='5'><table class="table-racers">`;
             for (let segScore of segmentScores) {
-                //debugger
                 const falScore = segScore.fal.find(x => x.athleteId == racer.athleteId);
-                const ftsScore = segScore.fts.find(x => x.athleteId == racer.athleteId);
+                let ftsScore = segScore.fts.find(x => x.athleteId == racer.athleteId);
+                if (sgConfig.ftsPerEvent && ftsScore) {
+                    const thisSegmentEventResults = perEventResults.find(x => x.segmentId == segScore.segmentId)
+                    const ftsScoring = zen.getScoreFormat(sgConfig.ftsScoreFormat, sgConfig.ftsStep);
+                    const ties = zen.findTies(thisSegmentEventResults.fts, "fts")
+                    if (ties.length > 0) {
+                        //console.log("Found one or more ties when displaying per event fts results", ties)
+                        for (let tie of ties) {
+                            if (tie.idxTie <= ftsScoring.length) {
+                                ftsScoring[tie.idxTie] = ftsScoring[tie.idxTiedWith]
+                                //debugger
+                            }
+                        }
+                        
+                    }
+                    const thisResultScore = ftsScoring[thisSegmentEventResults.fts.indexOf(thisSegmentEventResults.fts.find(x => x.id == ftsScore.id))]
+                    const ftsPoints = thisResultScore;
+                    ftsScore.points = ftsPoints;
+                }
+                
                 tableOutput += `<tr><td>${segScore.name} [${segScore.repeat}]</td><td>FAL: ${falScore?.points || 0}</td><td>FTS: ${ftsScore?.points || 0}</td></tr>`
             }
             tableOutput += `</td></tr></table>`
@@ -542,12 +614,35 @@ async function displayResults(racerScores, segmentScores, sgConfig, eventResults
             const thisSegment = eventResults.find(x => x.segmentId == segment.segmentId && x.repeat == segment.repeat)
             
             for (let i = 0; i < maxRows; i++) {
-                //TODO - include segment times
                 const thisRacerFTS = thisSegment.fts.find(x => x.athleteId == segment.fts[i]?.athleteId) || []
                 const thisRacerFAL = thisSegment.fal.find(x => x.athleteId == segment.fal[i]?.athleteId) || []                  
                 const ftsName = segment.fts[i]?.name || "n/a";
                 const ftsTime = thisRacerFTS.elapsed ? formatTime(thisRacerFTS.elapsed, 3) : "n/a";
-                const ftsPoints = segment.fts[i]?.points || "n/a";
+                let ftsPoints = segment.fts[i]?.points || "n/a";
+                if (sgConfig.ftsPerEvent) {
+                    const thisSegmentEventResults = perEventResults.find(x => x.segmentId == thisSegment.segmentId)                    
+                    const eventFTSScores = thisSegmentEventResults.fts.sort((a,b) => a.elapsed - b.elapsed).slice(0, segment.fts.length);
+                    if (eventFTSScores.find(x => x.id == thisRacerFTS.id)) {
+                        const ftsScoring = zen.getScoreFormat(sgConfig.ftsScoreFormat, sgConfig.ftsStep);
+                        const ties = zen.findTies(eventFTSScores, "fts")
+                    if (ties.length > 0) {
+                        //console.log("Found one or more ties when displaying per event fts results", ties)
+                        for (let tie of ties) {
+                            if (tie.idxTie <= ftsScoring.length) {
+                                ftsScoring[tie.idxTie] = ftsScoring[tie.idxTiedWith]
+                                //debugger
+                            }
+                        }
+                        
+                    }
+                        const thisResultScore = ftsScoring[eventFTSScores.indexOf(eventFTSScores.find(x => x.id == thisRacerFTS.id))]
+                        ftsPoints = thisResultScore;
+                    } else {
+                        ftsPoints = 0;
+                    }
+                    //debugger
+                }
+                
                 const falName = segment.fal[i]?.name || "n/a";
                 //const falDiff = (thisRacerFAL.falDiff / 1000).toFixed(3) || "n/a";
                 const falDiff = (thisRacerFAL.falDiff / 1000) || "n/a";
@@ -592,14 +687,30 @@ async function showResults(allEventConfigs) {
     let dbResults = await zen.getSegmentResults(dbSegments, eventSubgroupId)
     console.log("dbResults", dbResults)
     const sgConfig = allEventConfigs.find(x => x.eventSubgroupId == eventSubgroupId)
-    //debugger
+    const eventRacers = new Set(dbResults.map(x => x.athleteId))
+    const scoreKeys = ["falScoreFormat", "ftsScoreFormat", "finScoreFormat"];
+    let regex = /[a-z]\.\./i; //dot notation format    
+    if (scoreKeys.some(key => regex.test(sgConfig[key]))) {
+        scoreKeys.forEach(key => {
+            sgConfig[key] = sgConfig[key].replace(regex, `${eventRacers.size}..`);
+        });
+    }
+    regex = /[a-z]\:/i; //matlab format
+    if (scoreKeys.some(key => regex.test(sgConfig[key]))) {
+        scoreKeys.forEach(key => {
+            sgConfig[key] = sgConfig[key].replace(regex, `${eventRacers.size}:`);
+        });
+    }
     let eventResults = await processResults(eventSubgroupId, dbResults, sgConfig)
+    lastEventResults = eventResults;
+    lastEventPen = penSelect.options[penSelect.selectedIndex].text;
+    lastEventId = sgConfig.eventId;
     console.log("eventResults", eventResults)
-    let [racerScores, segmentScores] = await scoreResults(eventResults, sgConfig)
+    let [racerScores, segmentScores, perEventResults] = await scoreResults(eventResults, sgConfig)
     racerScores.sort((a,b) => {
         return b.pointTotal - a.pointTotal;
     })
-    await displayResults(racerScores, segmentScores, sgConfig, eventResults)
+    await displayResults(racerScores, segmentScores, sgConfig, eventResults, perEventResults)
     //debugger
 }
 
@@ -667,9 +778,33 @@ export async function main() {
         }
         selectPenList += "</select>"
         penListDiv.innerHTML = selectPenList;
+        lastEventName = eventDetails.name;
         penListDiv.addEventListener("change", function() {
             showResults(allEventConfigs)
         })
+
+    })
+    const saveJsonButton = document.getElementById("saveJson");
+    saveJsonButton.addEventListener("click", () => {
+        const exportData = {
+            Name: lastEventName,
+            EventId: lastEventId,
+            Pen: lastEventPen,
+            Points: lastEventRacerScores,
+            SegmentScores: lastEventSegmentScores,
+            AllSegmentResults: lastEventResults
+        };
+        const jsonResults = JSON.stringify(exportData, null, 2);
+        const resultsBlob = new Blob([jsonResults], { type: "application/json" });
+        const url = URL.createObjectURL(resultsBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        const suggestedFileName = `${lastEventName}-${lastEventPen}-${lastEventId}-export.json`;
+        a.download = suggestedFileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     })
     //debugger
     common.settingsStore.addEventListener('changed', ev => {

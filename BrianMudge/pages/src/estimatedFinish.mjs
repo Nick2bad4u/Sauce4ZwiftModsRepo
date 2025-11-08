@@ -447,7 +447,7 @@ async function updateRiderInfo(nearby) {
     state.watchId = watchingRider.athleteId;
 
     // Do I need to set the value of watchTargetHHMMSS on a window refresh
-    if (state.eventSubgroupId == 0 && watchingRider.state.eventSubgroupId > 0) {
+    if ((state.eventSubgroupId == 0 || state.eventSubgroupId == null) && watchingRider.state.eventSubgroupId > 0) {
         if (targetTimeGroup == watchingRider.state.eventSubgroupId) {
             document.getElementsByName("watchTargetHHMMSS")[0].value = targetTimeValue;
         } else {
@@ -658,7 +658,7 @@ async function updateRiderInfo(nearby) {
 //        console.log("state.firstUpdatingData =", state.firstUpdatingData);
         if (state.firstUpdatingData ) {
             firstEstimatedMinutesAtFinish = state.firstEstimatedMinutesAtFinish;
-            if (firstRider == null || firstRider.state.eventSubgroupId==0) {
+            if (firstRider == null || firstRider.state.eventSubgroupId == 0 || firstRider.state.eventSubgroupId == null) {
                 if (state.firstUpdatingCut == false || firstRider == null) {clearFirstRider(true);}
                 if (state.firstEventPosition == 0) { 
                     clearCutTime();

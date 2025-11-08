@@ -58,8 +58,9 @@ export var jsonNotes = `[
     {"Name":"sprint du cratère reverse","comments": ""},
     {"Name":"sprinteur sprint reverse","comments": ""},
     {"Name":"dos d'âne sprint","comments": ""},
-    {"Name":"sprinteur sprint","comments": ""},
+    {"Name":"sprinteur sprint","comments": "2% rise to the start, but flattens out."},
     {"Name":"sprint du cratère","comments": ""},
+    {"Name":"ventous half kom","comments": ""},
 {"Name":"connector canyon climb","comments": ""},
 {"Name":"festival harbor climb ccw","comments": "Leads to a Sprint segment"},
 {"Name":"festival harbor climb cw","comments": "Leads to a Sprint segment"},
@@ -98,5 +99,6 @@ export var jsonNotes = `[
 {"Name":"the esses reverse","comments": ""},
 {"Name":"the esses","comments": ""},
 {"Name":"ramp out of desert","comments": "Can split up riders"},
+{"Name":"deadman's curve climb","comments": ""},
 {}]`;
     

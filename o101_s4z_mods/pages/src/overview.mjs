@@ -102,7 +102,8 @@ export async function main() {
     common.subscribe('athlete/watching', updateMetrics);
     o101Common.initNationFlags();
     o101Common.initTeamColors();
-
+    o101Common.initOverRiders();
+    
     showRiderInfo = common.settingsStore.get('showRiderInfo');
     showEventInfo = common.settingsStore.get('showEventInfo');
     hideEventLapInfo = common.settingsStore.get('hideEventLapInfo');
@@ -147,7 +148,7 @@ export async function main() {
     });
    
     o101UiLib.createInfoSection('#totalInfo', 'total-', ['elapsed-time','distance','elevation']);    
-    o101UiLib.createInfoSection('#eventInfo', 'event-', ['title', 'course', 'total-distance', 'total-elevation', 'lap-distance', 'lap-elevation', 'lap', 'position', 'progress', 'elapsed-time', 'distance', 'elevation-remaining', 'expected-time', 'finish']);    
+    o101UiLib.createInfoSection('#eventInfo', 'event-', ['title', 'course', 'power ups', 'total-distance', 'total-elevation', 'lap-distance', 'lap-elevation', 'lap', 'position', 'progress', 'elapsed-time', 'distance', 'elevation-remaining', 'expected-time', 'finish']);    
     o101UiLib.createInfoSection('#segmentInfo', 'segment-', ['title', 'name', 'personal-best', 'length', 'distance-to-go', 'progress', 'elapsed-time', 'expected-time']);
     
     o101UiLib.convertToHeader(['#event-title', '#segment-title']);
@@ -202,8 +203,10 @@ function updateMetrics(info) {
 }
 
 function loadRiderInfo(info) {
+    const overrider = o101Common.getOverRider(info.athlete.id);
+
     setValue('#rider-flag', o101Common.fmtFlag(info));
-    setValue('#rider-fullname', o101Common.fmtFirstName(info) + ' ' + o101Common.fmtLastName(info));
+    setValue('#rider-fullname', (overrider!= null) ? overrider.alias : o101Common.fmtFirstName(info) + ' ' + o101Common.fmtLastName(info));
     setValue('#rider-team', o101Common.fmtTeamBadgeV2(info, true));
 }
 
@@ -224,6 +227,7 @@ async function loadEventInfo(info) {
     if (event.activeEvent) {
         event.distance = event.activeEvent.distanceInMeters ?? event.activeEvent.routeDistance;
         event.laps = event.activeEvent.laps;
+        event.powerUps = o101Common.getEventPowerUps(event.activeEvent);
 
         //if (!eventHeaderInitialized) {
         //    convertToScrollContainer('event-title');
@@ -236,7 +240,14 @@ async function loadEventInfo(info) {
         if (zwiftRoute) {
             setValue('#event-title', '<span>' + zwiftRoute.name + '</span>');
             setValue('#event-lap-distance-value', o101Common.formatNumber(zwiftRoute.distanceInMeters/1000, 2) + '<abbr>km</abbr>');
-            setValue('#event-lap-elevation-value', o101Common.formatDistanceInMeters(zwiftRoute.ascentInMeters) + '<abbr>m</abbr>');    
+            setValue('#event-lap-elevation-value', o101Common.formatDistanceInMeters(zwiftRoute.ascentInMeters) + '<abbr>m</abbr>');  
+            
+            let pus = '';
+            for(let i=0; i<event.powerUps.length;i++) {
+                pus += '&nbsp;<img src="././images/pu-' + event.powerUps[i] + '.png"/>';
+            }
+
+            setValue('#event-power-ups-value', pus);
         }
 
         setValue('#event-course', '<span>zwiftRoute name zwiftRoute name</span>');
@@ -285,7 +296,9 @@ async function loadEventInfo(info) {
         setValue('#event-finish-value', distanceToFinish + '<abbr>km</abbr>');
 
         o101UiLib.toggleClassByElements(!common.settingsStore.get('showEventInfoPosition') || eventPosition==0, 'hidden', ['#event-position']);
+        o101UiLib.toggleClassByElements(!common.settingsStore.get('showEventInfoElapsedTime'), 'hidden', ['#event-elapsed-time']);
         o101UiLib.toggleClassByElements(event.activeEvent.distanceInMeters, 'hidden', ['#event-total-elevation', '#event-elevation-remaining']);
+        o101UiLib.toggleClassByElements(event.powerUps.length==0, 'hidden', ['#event-power-ups']);
     } else {
         if (overviewData.route.id != info.state.routeId) {
             const route = await common.rpc.getRoute(info.state.routeId);
@@ -404,7 +417,7 @@ async function loadSegmentInfo(info) {
 async function loadSegmentPersonalBest(segmentId, athleteId) {
     if (!showSegmentInfo || !showSegmentPB) return;
 
-    const segmentBests = await common.rpc.getSegmentResults(segmentId, {athleteId, from: Date.now() - 86400000 * 90})
+    const segmentBests = await getSegmentResultsRateLimiter('PB', 60000, segmentId, athleteId);    
     const sorted = segmentBests.sort(function(a, b) {return a.elapsed - b.elapsed});
     
     if (sorted.length>0 && sorted[0].elapsed>0) {
@@ -508,9 +521,9 @@ function loadSegmentOverview(info) {
     header.appendChild(o101UiLib.createDiv(['info-item-label'], '<span>Route segments</span>'));
     dataGroup.appendChild(header);
 
+    const completed = overviewData.segments.routeSegments.filter(s => info.segmentData.currentPosition > s.end);
     if (showSegmentOverviewHideCompleted) {
         let dataItem = o101UiLib.createDiv(['info-item', 'divider']);
-        const completed = overviewData.segments.routeSegments.filter(s => info.segmentData.currentPosition > s.end);
         
         dataItem.classList.add('striked');
         dataItem.appendChild(o101UiLib.createDiv(['info-item-label'], 'Segments completed'));
@@ -545,7 +558,7 @@ function loadSegmentOverview(info) {
         dataGroup.appendChild(dataItem);
     }
 
-    const hiddenNextSegments = overviewData.segments.routeSegments.length - showSegmentOverviewMaxSegments;
+    const hiddenNextSegments = overviewData.segments.routeSegments.length - completed.length - showSegmentOverviewMaxSegments;
     if (hiddenNextSegments > 0){
         let dataItem = o101UiLib.createDiv(['info-item', 'divider']);
         
@@ -643,10 +656,12 @@ async function loadSegmentLeaderboard(segment, info) {
     if (segment == null ) return;
 
     const createLeaderboardEntry = (rank, entry, teamBadge, marked = false) => {
+        const overrider = o101Common.getOverRider(entry.id);
+        
         return {
             id: entry.id,
             rank: rank,
-            name: o101Common.formatLeaderboardName(entry),
+            name: (overrider!= null) ? overrider.alias : o101Common.formatLeaderboardName(entry),
             result: o101Common.formatLeaderboardTime(entry.elapsed),
             marked: marked || o101Common.getAthleteType(entry) == 'marked',
             teamBadge
@@ -654,7 +669,8 @@ async function loadSegmentLeaderboard(segment, info) {
     };
 
     let leaderboardRanking = [];
-    let segmentLeaderboard = await common.rpc.getSegmentResults(segment.id, {live:true})
+
+    let segmentLeaderboard = await getSegmentResultsRateLimiter('leaderboard', 2000, segment.id);
     let leaderboard = segmentLeaderboard
         .filter(x => x.eventSubgroupId === overviewData.eventSubgroupId)
         .sort(function(a, b) {return a.elapsed - b.elapsed});
@@ -730,4 +746,29 @@ async function getMarkedAthletes() {
             markedAthletes = x.map((i) => { return i.id;});
         }),
     ])
+}
+
+
+// TODO: move to wrapper for all rpc calls
+let getSegmentResultsPBTimeStamp = null;
+let getSegmentResultsPB;
+let getSegmentResultsTimeStamp = null;
+let getSegmentResults;
+async function getSegmentResultsRateLimiter(method, limit, segmentId, athleteId = 0) {
+    if (method == "PB") {
+        if (getSegmentResultsPBTimeStamp == null || (Date.now() - getSegmentResultsPBTimeStamp) >= limit) {
+            getSegmentResultsPBTimeStamp = Date.now();
+            getSegmentResultsPB = await common.rpc.getSegmentResults(segmentId, {athleteId, from: Date.now() - 86400000 * 90})
+        }
+        return getSegmentResultsPB;
+    }
+    if (method == "leaderboard") {
+        if (getSegmentResultsTimeStamp == null || (Date.now() - getSegmentResultsTimeStamp) >= limit) {
+            getSegmentResultsTimeStamp = Date.now();
+            getSegmentResults = await common.rpc.getSegmentResults(segmentId, {live:true});
+        } 
+        return getSegmentResults;
+    }
+    
+    return null;
 }

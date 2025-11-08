@@ -170,6 +170,11 @@ export async function processRoute(courseId, routeId, laps, distance, includeLoo
         }
         //debugger
     }
+    if (courseId == 14 && allMarkLines.find(x => x.id == "9655158959") && allMarkLines.find(x => x.id == "1034851390")) {
+        // rename Ventoux Half KOM to Ventoux KOM when both are present.  As far as I know, this is the only overlapping segment like this.
+        let ventouxHalf = allMarkLines.find(x => x.name == "Ventoux Half KOM");
+        ventouxHalf.name = "Ventoux KOM";
+    }
     //debugger
     let segmentRepeatCheck = routeSegments.filter(x => x.repeat > 1);
     let segmentRepeats;
@@ -763,7 +768,7 @@ export function getxCoord(watching, routeInfo) {
     }
 }
 
-
+/* no need for this now that it is exported from common
 function supplimentPath(worldMeta, curvePath, {physicsSlopeScale}={}) {
     console.log("using zen.supplimentPath")
     const balancedT = 1 / 125; // tests to within 0.27 meters (worst case)
@@ -805,6 +810,7 @@ function supplimentPath(worldMeta, curvePath, {physicsSlopeScale}={}) {
         distances,
     };
 }
+*/
 
 function zToAltitude(worldMeta, z, {physicsSlopeScale}={}) {
     return worldMeta ? (z + worldMeta.waterPlaneLevel) / 100 *
@@ -1096,9 +1102,8 @@ async function getExitPathDistance(exitPath, route, worldMeta) {
         exitRoute.roadSegments.push(seg);
         exitRoute.curvePath.extend(x.reverse ? seg.toReversed() : seg);
     }
-    const supPath = common.supplimentPath || supplimentPath;
-    console.log(supPath)
-    Object.assign(exitRoute, supPath(worldMeta, exitRoute.curvePath));
+    //const supPath = common.supplimentPath || supplimentPath;
+    Object.assign(exitRoute, common.supplimentPath(worldMeta, exitRoute.curvePath));
     if (exitRoute.distances.length > 0) {
         return {
             exitDistance: exitRoute.distances.at(-1),
@@ -1121,9 +1126,8 @@ async function measureRoadLength(manifestEntry, courseId) {
     tempCurvepath.extend(seg)
     const worldList = await common.getWorldList();
     const worldMeta = worldList.find(x => x.courseId === courseId);
-    const supPath = common.supplimentPath || supplimentPath;
-    console.log(supPath)
-    const manifestData = supPath(worldMeta, seg);
+    //const supPath = common.supplimentPath || supplimentPath;
+    const manifestData = common.supplimentPath(worldMeta, seg);
     return manifestData.distances.at(-1);
 }
 
@@ -1382,10 +1386,9 @@ export async function getModifiedRoute(id, disablePenRouting) {
                     route.roadSegments.push(seg);
                     route.curvePath.extend(x.reverse ? seg.toReversed() : seg);
                 }
-                const supPath = common.supplimentPath || supplimentPath;
-                //console.log(supPath)
+                //const supPath = common.supplimentPath || supplimentPath;
                 //Object.assign(route, supPath(worldMeta, route.curvePath));
-                Object.assign(route, supPath(worldMeta, route.curvePath));
+                Object.assign(route, common.supplimentPath(worldMeta, route.curvePath));
             }
                        
             return route;
@@ -1447,9 +1450,8 @@ export async function getSegmentPath(id) {
             // But I've not seen portal roads used in a route either.
             //debugger
         }
-        const supPath = common.supplimentPath || supplimentPath;
-        console.log(supPath)
-        Object.assign(segment, supPath(worldMeta, segment.curvePath));
+        //const supPath = common.supplimentPath || supplimentPath;
+        Object.assign(segment, common.supplimentPath(worldMeta, segment.curvePath));
     }
     return segment;
 }
@@ -2345,9 +2347,8 @@ export async function validateManifest(route) {
                 route.lapFiller.roadSegments.push(seg);
                 route.lapFiller.curvePath.extend(x.reverse ? seg.toReversed() : seg);
             }
-            const supPath = common.supplimentPath || supplimentPath;
-            console.log(supPath)
-            Object.assign(route.lapFiller, supPath(worldMeta, route.lapFiller.curvePath));
+            //const supPath = common.supplimentPath || supplimentPath;
+            Object.assign(route.lapFiller, common.supplimentPath(worldMeta, route.lapFiller.curvePath));
         }
         route.lapFiller.manifest = lapFiller;
         
@@ -2466,7 +2467,7 @@ async function fixManifestGap(first, next, intersections, allRoads, route) {
             //console.log("Why are we going to the same road but not switching from leadin to route?")
         }
     } else {
-        const roadIntersections = intersections.find(int => int.id === first.roadId); 
+        const roadIntersections = intersections.find(int => int.id === first.roadId) || []; 
         const direction = first.reverse ? "reverse" : "forward";
         next.reverse = next.reverse ? true : false; // make sure reverse has a value
         let validIntersections = roadIntersections.intersections?.flatMap(i => i[direction]?.map(option => ({ option: option.option, intersection: i }))).filter(o => o.option?.road == next.roadId && o.option?.forward != next.reverse);
@@ -2626,7 +2627,8 @@ async function isBannerNearby(lastManifestEntry, courseId, type) {
     let nearbySegment;
     if (roadSegments.length > 0) {  
         if (lastManifestEntry.reverse) {
-            nearbySegment = roadSegments.filter(x => x.roadFinish + 0.1 > lastManifestEntry.start && x.roadFinish - 0.1 < lastManifestEntry.start )
+            const nearbyDiff = courseId == 14 ? 0.01 : 0.1; // France oddities...
+            nearbySegment = roadSegments.filter(x => x.roadFinish + nearbyDiff > lastManifestEntry.start && x.roadFinish - nearbyDiff < lastManifestEntry.start  && x.reverse == lastManifestEntry.reverse)
             let closestSegment;
             if (nearbySegment.length > 0) {
                 closestSegment = nearbySegment.reduce((closest, segment) => {
@@ -2634,6 +2636,7 @@ async function isBannerNearby(lastManifestEntry, courseId, type) {
                 });
                 //debugger
                 //console.log("Changing", type, " manifest entry to ", closestSegment.name, "banner.  From", lastManifestEntry.start, "to", addSmallIncrement(closestSegment.roadFinish, -1))
+                //debugger
                 if (closestSegment.roadFinish < lastManifestEntry.end && lastManifestEntry.reverse == closestSegment.reverse) { // make sure the segment isn't behind the pen and the roads are going in the same direction
                     lastManifestEntry.start = addSmallIncrement(closestSegment.roadFinish, -1) // just past the banner to avoid duplicate segment detection
                 }
@@ -3219,9 +3222,8 @@ export async function findPathFromAtoB(startPoint, endPoint, intersections, allR
     tempCurvepath.extend(seg)
     const worldList = await common.getWorldList();
     const worldMeta = worldList.find(x => x.courseId === courseId);
-    const supPath = common.supplimentPath || supplimentPath;
-    console.log(supPath)
-    const manifestData = supPath(worldMeta, seg);
+    //const supPath = common.supplimentPath || supplimentPath;
+    const manifestData = common.supplimentPath(worldMeta, seg);
     return manifestData.distances.at(-1);
 }
 
@@ -3284,12 +3286,19 @@ export function getScoreFormat(scoreFormat, scoreStep) {
 
 export async function openTeamsDB() {
     return new Promise((resolve, reject) => {
-        const teamsDB = indexedDB.open("teamsDatabase", 1)
+        const teamsDB = indexedDB.open("teamsDatabase", 2)
         teamsDB.onupgradeneeded = function(event) {
             const db = event.target.result;
-            if (!db.objectStoreNames.contains("teamsDatabase")) {
-                console.log("Creating teamsDatabase store")
-                const store = db.createObjectStore("teams", {keyPath: "team"});                
+            if (!db.objectStoreNames.contains("teams")) {
+                console.log("Creating teams store")
+                const store = db.createObjectStore("teams", {keyPath: "id", autoIncrement: true});
+                store.createIndex("team", "team", {unique: false});
+                //store.createIndex("badge", {unique: false})
+            }
+            if (!db.objectStoreNames.contains("athleteIds")) {
+                console.log("Creating athleteIds store");
+                const store = db.createObjectStore("athleteIds", {keyPath: "athleteId"});
+                store.createIndex("team", "team", {unique: false});
             }
         };
         teamsDB.onsuccess = async function(event) {
@@ -3304,13 +3313,168 @@ export async function openTeamsDB() {
     });
 }
 
+export async function addNewTeam(dbTeams, teamName) {
+    return new Promise((resolve, reject) => {
+        const storeName = "teams";
+        const transaction = dbTeams.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+        const newTeam = {
+            team: teamName,
+            badge: ""
+        }
+        const request = store.add(newTeam);
+        request.onsuccess = function () {            
+            console.log("New team added:", teamName);
+        };
+        request.onerror = function (event) {
+            console.error("Failed to add new team:", event.target.error);
+        };
+        
+        transaction.oncomplete = function () {
+            //console.log("All segment results processed.");
+            resolve();
+        };
+
+        transaction.onerror = function (event) {
+            console.error("Transaction error:", event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+export async function deleteTeam(dbTeams, id) {
+    return new Promise((resolve, reject) => {
+        const storeName = "teams";
+        const transaction = dbTeams.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+        const request = store.delete(parseInt(id));
+        request.onsuccess = function () {
+            console.log("Deleted team id", id)
+        };
+        request.onerror = function () {
+            console.error("Failed to delete team", id, event.target.error)
+        };
+        transaction.oncomplete = function () {
+            resolve();
+        };
+        transaction.onerror = function (event) {
+            console.error("Transaction error:", event.target.error);
+            reject(event.target.error);
+        };
+    })
+}
+
+export async function assignAthlete(dbTeams, id, athleteId) {
+    return new Promise((resolve, reject) => {
+        const storeName = "athleteIds";
+        const transaction = dbTeams.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+        const assignment = {
+            athleteId: athleteId,
+            team: id
+        }
+        let request;
+        console.log("assignment", assignment)
+        if (id != "-1") {
+            request = store.put(assignment);
+        } else {
+            request = store.delete(athleteId)
+        }
+        request.onsuccess = function () {            
+            console.log("Team assignment complete:", assignment);
+        };
+        request.onerror = function (event) {
+            console.error("Failed to assign athlete to team:", event.target.error);
+        };
+        
+        transaction.oncomplete = function () {
+            //console.log("All segment results processed.");
+            resolve();
+        };
+
+        transaction.onerror = function (event) {
+            console.error("Transaction error:", event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+
+export async function getExistingTeams(teamsDb) {
+    const storeName = "teams"
+    return new Promise((resolve, reject) => {
+        try {
+            const transaction = teamsDb.transaction(storeName, "readonly");
+            const store = transaction.objectStore(storeName);
+            const index = store.index("team");
+            //console.log("Starting query for eventSubgroupId:", eventSubgroupId);
+
+            const request = index.getAll();
+            request.onsuccess = function () {                
+                //console.log("Query success. Retrieved", request.result.length, "entries");
+                resolve(request.result);
+            };
+
+            request.onerror = function (event) {
+                console.error("Error fetching teams", event.target.error);
+                reject(event.target.error);
+            };
+
+            transaction.oncomplete = function () {
+                //console.log("Transaction completed successfully.");
+            };
+
+            transaction.onerror = function (event) {
+                console.error("Transaction error:", event.target.error);
+                reject(event.target.error);
+            };
+        } catch (error) {
+            console.error("Unexpected error in getExistingTeams:", error);
+            reject(error);
+        }
+    });
+}
+
+export async function getTeamAssignments(teamsDb) {
+    const storeName = "athleteIds"
+    return new Promise((resolve, reject) => {
+        try {
+            const transaction = teamsDb.transaction(storeName, "readonly");
+            const store = transaction.objectStore(storeName);
+            const index = store.index("team");
+            //console.log("Starting query for eventSubgroupId:", eventSubgroupId);
+
+            const request = index.getAll();
+            request.onsuccess = function () {                
+                //console.log("Query success. Retrieved", request.result.length, "entries");
+                resolve(request.result);
+            };
+
+            request.onerror = function (event) {
+                console.error("Error fetching athleteids", event.target.error);
+                reject(event.target.error);
+            };
+
+            transaction.oncomplete = function () {
+                //console.log("Transaction completed successfully.");
+            };
+
+            transaction.onerror = function (event) {
+                console.error("Transaction error:", event.target.error);
+                reject(event.target.error);
+            };
+        } catch (error) {
+            console.error("Unexpected error in getTeamAssignments:", error);
+            reject(error);
+        }
+    });
+}
+
 export const scoreFormats = [
     {
         name: "ZRL",
         fts: "10..1",
         ftsStep: 2,
         ftsBonus: "",
-        fal: "20..1",
+        fal: "x..1",
         falStep: 1,
         falBonus: "",
         fin: "x..1",
@@ -3491,4 +3655,20 @@ async function getCurrentPortalRoad(route) {
         }
     }
     return parseInt(activePortalRoad)
+}
+
+export function findTies(segRes, scoreFormat) {
+  const results = [];
+  let groupStart = 0;
+  const propName = scoreFormat == "fal" ? "ts" : "elapsed"
+
+  for (let i = 1; i < segRes.length; i++) {
+    if (segRes[i][propName] === segRes[groupStart][propName]) {
+      results.push({ idxTie: i, idxTiedWith: groupStart });
+    } else {
+      groupStart = i;
+    }
+  }
+
+  return results;
 }

@@ -58,7 +58,7 @@ div .info-item-team span {
     border-radius: 4px;
     font-weight: var(--weight);
     padding: 0 0.4em 0 0.4em;
-    color: var(--o101c);
+    color: var(--o101c) !important;
     zoom: 0.6;
 }
 div .info-item-flag {

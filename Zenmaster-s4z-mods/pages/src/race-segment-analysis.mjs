@@ -168,6 +168,7 @@ export async function main() {
                     console.log(sg);
                     courseId = sg.courseId;
                     routeId = sg.routeId;
+                    const eventEntrants = await common.rpc.getEventSubgroupEntrants(sg.id, {joined: true});
                     const eventResults = await common.rpc.getEventSubgroupResults(sg.id)
                     if (eventResults.length > 0) {
                         for (let result of eventResults) {
@@ -205,6 +206,10 @@ export async function main() {
                         const allSegmentResults = [];
                         for (let segmentId of routeInfo.uniqueSegmentIds) {
                             console.log("eventStartTime", eventStartTime, "lastFinisher", lastFinisher, "segmentId", segmentId)
+                            for (let entrant of eventEntrants) {
+                                
+                            }
+                            //debugger
                             const segmentResultsDuringEventTime = await common.rpc.getSegmentResults(segmentId, {from: eventStartTime, to: lastFinisher});
                             console.log("segmentResultsDuringEventTime", segmentResultsDuringEventTime);
                             const racerSegmentResults = segmentResultsDuringEventTime.filter(x => eventResultsIds.includes(x.athleteId)).map(x => ({...x, segmentId: segmentId}));

@@ -58,24 +58,42 @@ function handleData(info) {
         event.activeEvent = o101Common.lazyGetSubgroup(eventSubgroupId);
     }
 
-    if (event.activeEvent == null) return;
+    if (event.activeEvent == null) {
+        let route = o101Common.lazyGetRoute(info.state.routeId);
 
-    let zwiftRoute = o101Common.lazyGetRoute(event.activeEvent.routeId);
+        if (route == null) return;
 
-    if (zwiftRoute == null) return;
+        const routeDistance = route.distanceInMeters;
 
-    const routeDistance = event.activeEvent.distanceInMeters ?? event.activeEvent.routeDistance;
+        courseInfo.routeName = route.name;
+        courseInfo.routeDistance = routeDistance - route.leadinDistanceInMeters;
+        courseInfo.totalDistance = routeDistance;
+        //courseInfo.lapInfo.laps = event.activeEvent.laps;
+        courseInfo.lapInfo.lapDistance = route.distanceInMeters;
+        courseInfo.leadInDistance = route.leadinDistanceInMeters;
+        courseInfo.distanceToFinish = routeDistance - info.state.eventDistance;
+        courseInfo.distanceCompleted =  info.state.eventDistance;
+        courseInfo.progress = info.state.eventDistance / routeDistance * 100;
+        courseInfo.distanceCompleted = info.state.distance;
+        console.log(route)
+    } else {
+        let zwiftRoute = o101Common.lazyGetRoute(event.activeEvent.routeId);
 
-    courseInfo.routeName = zwiftRoute.name;
-    courseInfo.routeDistance = routeDistance - zwiftRoute.leadinDistanceInMeters;
-    courseInfo.totalDistance = routeDistance;
-    courseInfo.lapInfo.laps = event.activeEvent.laps;
-    courseInfo.lapInfo.lapDistance = zwiftRoute.distanceInMeters;
-    courseInfo.leadInDistance = zwiftRoute.leadinDistanceInMeters;
-    courseInfo.distanceToFinish = routeDistance - info.state.eventDistance;
-    courseInfo.distanceCompleted =  info.state.eventDistance;
-    courseInfo.progress = info.state.eventDistance / routeDistance * 100;
-    courseInfo.distanceCompleted = info.state.distance;
+        if (zwiftRoute == null) return;
+
+        const routeDistance = event.activeEvent.distanceInMeters ?? event.activeEvent.routeDistance;
+
+        courseInfo.routeName = zwiftRoute.name;
+        courseInfo.routeDistance = routeDistance - zwiftRoute.leadinDistanceInMeters;
+        courseInfo.totalDistance = routeDistance;
+        courseInfo.lapInfo.laps = event.activeEvent.laps;
+        courseInfo.lapInfo.lapDistance = zwiftRoute.distanceInMeters;
+        courseInfo.leadInDistance = zwiftRoute.leadinDistanceInMeters;
+        courseInfo.distanceToFinish = routeDistance - info.state.eventDistance;
+        courseInfo.distanceCompleted =  info.state.eventDistance;
+        courseInfo.progress = info.state.eventDistance / routeDistance * 100;
+        courseInfo.distanceCompleted = info.state.distance;
+    }
 
     if (courseInfo.progress >= 99.9) {
         if (courseInfo.progress > 100) courseInfo.progress = 100; 
