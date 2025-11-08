@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="" tabindex="0" data-settings-key="dosenhuhn_grid_settings_v1">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+
+        <title>Mod: grid</title>
+        <script src="./src/gridstack-all.js"></script>
+        <script type="module">
+           import {main} from './src/grid.mjs';
+           main();            
+        </script>
+        <link id="favicon" rel="shortcut icon" href="/pages/images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+
+        <link rel="stylesheet" href="./css/gridstack.min.css"/>  
+        <link rel="stylesheet" href="./css/gridstack-extra.css"/>       
+        <style>
+            table td {
+                text-align: center !important;
+            }     
+
+            html.solid-background {
+                background: var(--background-color);
+            }
+            html.solid-background body {
+                background: transparent !important;
+            }
+            .unit {
+                font-size: calc(1em);
+                vertical-align: text-bottom;
+            }
+            .grid-stack-item.ui-resizable-resizing iframe {
+                  pointer-events: none;
+            }            
+            .move-icon {
+                visibility: hidden;
+                z-index: 999;
+                width: 10px;
+                height: 10px;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .move-icon ms{
+                margin-top: 0.15em;
+                font-size: 1.4em;
+                font-weight: 200;
+            }
+            .grid-stack-item:hover .move-icon {
+                    visibility: visible;
+                    z-index: 999;
+            }
+            .grid-stack-item:hover {
+                    visibility: visible;
+                    background: url(../../../pages/images/fa/plus-square-duotone.svg) no-repeat;
+                    background-size: 20px;
+                    z-index: 999;
+            }            
+
+        .iframe {
+            overflow: hidden;
+            vertical-align: top;
+            border: none; 
+            width: 100%; 
+            height: 100%;
+        } 
+        .rounded {
+            border-radius: 10px;
+        }
+        .edit_mode {
+            background: rgb(0,0,0);
+            background: linear-gradient(45deg, rgba(0,0,0,1) 0%, rgba(9,9,9,1) 40%, rgba(255,4,4,1) 100%);
+            height: 100%;
+            width: 100%;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 30px;
+            justify-content: center;
+            align-items: center;
+            display: grid;
+        }
+        
+        .toggleEdit {
+            color: red;
+        }
+        ms[heavy]:hover {
+            animation: 1s alert-color-flash infinite;
+        }
+        body {
+            overflow: auto !important;
+        }
+        .add-new {
+            padding-right:20px;
+        }
+                                    
+        </style>
+
+
+        
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img title="icon" src="/pages/images/icon128.png"/></div>
+                <div class="title">MOD: grid</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div id="add-new" class="add-new">
+                        <select title="type" name="type"></select>
+                        <a class="button" title="add widget" data-action="addWidget"><ms heavy>add</ms></a>
+                    </div>
+            
+                    <a class="button" title="Edit View"
+                    data-action="toggleEdit" id="toggleEditBtn" class=""
+                    href><ms>edit</ms></a>                    
+                    <a class="button open-settings" href="./grid-settings.html?width=380&height=720&child-window"
+                    title="Open settings window" target="grid-settings"><ms>settings</ms></a>
+                    <div title="Minimize" class="button minimize electron-only"><ms>minimize</ms></div>
+                    <div title="Close this window" class="button close electron-only"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="content">
+            <div class="grid-stack"></div>
+
+        <div id="hintbar">
+            <div class="hint"></div>
+        </div>
+    </body>
+</html>

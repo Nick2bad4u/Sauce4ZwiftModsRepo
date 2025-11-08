@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" tabindex="0" data-settings-key="dosenhuhn_states_settings_v1">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+
+        <title>Mod: states</title>
+
+        <script type="module">
+            import {main} from './src/states.mjs';
+            main();
+        </script>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+        <link rel="stylesheet" href="/pages/css/nearby.css"/>
+        <style>
+            table {
+                width: 100%;
+            }
+            table td {
+                text-align: center !important;
+                width: 20%;
+            }            
+            td[heavy] {
+                font-weight: 600;
+                font-size: calc(var(--font-scale) * 2em);
+            }
+            table th {
+                text-align: center !important;
+                font-size: calc(var(--font-scale) * 1em);
+                width: 20%;
+            }              
+            table thead {
+                width: 100%; 
+                font-variant: all-small-caps;
+            }             
+            body {
+                overflow: hidden !important; /* Hide scrollbars */  
+            }
+            .boblinkValue {
+                animation: blinkval 0.2s infinite alternate;
+            }
+            @keyframes blinkval {
+                from {
+                    opacity: 0.1;
+                }
+                to {
+                    opacity: 1;
+                }
+            }         
+        </style>
+        <link id="favicon" rel="shortcut icon" href="/pages/images/favicon.png"/>
+
+        
+    </head>
+    <body>
+        <div id="titlebar">
+            <header>
+                <div class="logo"><img title="icon" src="/pages/images/icon128.png"/></div>
+                <div class="title">MOD: actual states</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <a class="button open-settings" href="./states-settings.html?width=380&height=720&child-window"
+                    title="Open settings window" target="states-settings"><ms>settings</ms></a>                      
+                    <div title="Minimize" class="button minimize electron-only"><ms>minimize</ms></div>
+                    <div title="Close this window" class="button close electron-only"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="content">
+            <table id="table">
+                <thead >
+                    <tr>
+                        <th >PWR</th>
+                        <th >CAD</th>                        
+                        <th >HR</th>
+                        <th >SPD</th>
+                        <th >W'bal</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td heavy id="act_pwr"></td>
+                        <td heavy id="act_cad"></td>                        
+                        <td heavy id="act_hr"></td>                
+                        <td heavy id="act_speed"></td>
+                        <td heavy id="act_wbal"></td>                        
+                     </tr>
+                                                                 
+                </tbody>
+            </table>
+        </div>
+        <div id="hintbar">
+            <div class="hint"></div>
+        </div>
+    </body>
+</html>

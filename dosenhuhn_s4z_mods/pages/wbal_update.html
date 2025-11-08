@@ -1,0 +1,144 @@
+<html lang="en"  data-settings-key="dosenhuhn_wbalupdate_settings_v1">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"/>
+        <title>DH MOD: WBal updater from json</title>	
+        <script type="module">
+            import {main} from './src/wbal_update.mjs';
+            main();
+        </script>		
+        <link id="favicon" rel="shortcut icon" href="/pages/images/favicon.png"/>
+        <link rel="stylesheet" href="/pages/css/common.css"/>
+        <link rel="stylesheet" href="/pages/css/overview-settings.css"/>
+        
+        <style>
+            html {
+              font-size: 4.8mm;
+              /*text-align: center;*/
+            }
+            .title {
+                font-size: 1.3em;
+                opacity: 0.9;
+                padding: 0.2em 0 0.5em;
+                font-variant: all-small-caps;
+                font-weight: bold;
+                }
+            #teamNumber, #eventNumber, #zwiftID {
+                width: 14ch;
+            }
+            #fileInput {
+                border-color:white; 
+                color:black;
+                width: 80%;
+            }
+            #update_btn{
+                visibility:hidden;
+            } 
+            table {
+                width: 100%;
+                text-align: center;
+            }
+            thead {
+                width: 100%;
+            }
+            thead th {
+                width: 25%;
+            }
+            tbody {
+                height: 150px;  
+                width: 100%; 
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            #dtable {
+                height: 250px;
+                overflow-y: auto;
+                width: 100%;
+            }
+        </style>
+    </head>    
+    <body>
+        <div id="titlebar" class="always-visible">
+            <header>
+                <div class="logo"><img title="icon" src="/pages/images/icon128.png"/></div>
+                <div class="title">MOD: wPrime and CP update from zwiftracing.app or json</div>
+                <div class="filler"></div>
+                <div class="buttons">
+                    <div title="Minimize" class="button minimize electron-only"><ms>minimize</ms></div>
+                    <div title="Close this window" class="button close electron-only"><ms>close</ms></div>
+                </div>
+            </header>
+        </div>
+        <div id="content">
+        <div id="meta" class="app-drag"></div>
+        <form >
+            <div class="title">Update zwift ID with intervals.icu WBAL/FTP data</div>
+            <label title="Intervals API Key">
+                <key>Intervals API:</key>
+                <input type="string" id="intervalsAPI" value=""/>
+            </label>
+            <label title="Intervals User ID">                
+                <key>Intervals ID:</key>
+                <input type="string" id="intervalsID" value=""/>
+            </label>
+            <label title="Zwift ID">                
+                <key>Zwift ID:</key>
+                <input type="number" id="zwiftID" value=""/>
+                <div class="std button" title="Refresh" data-action="fetch-icu"><ms>search</ms></div>
+            </label>            
+            <hr class="solid">            
+        <div class="title">Update teams wbal/cp from ZR.app</div>
+        <label title="ZwiftRacing API Key">
+            <key>ZwiftRacing API:</key>
+            <input type="string" id="zrAPI" value=""/>
+        </label>
+        <label title="The team number from zwiftracing or ZP">
+            <key>Team Number:</key>
+            <input type="number" id="teamNumber" value=""/>
+            <div class="std button" title="Refresh" data-action="fetch-tzr"><ms>search</ms></div>
+        </label>
+        <!-- <hr class="solid">
+        <div class="title">Update event participants wbal/cp</div>            
+        <label title="The event number from zwiftracing or ZP">
+            <key>Event Number:</key>
+            <input type="number" id="eventNumber" value=""/>
+            <div class="std button" title="Refresh" data-action="fetch-ezr"><ms>search</ms></div>
+        </label> -->
+        <hr class="solid">
+        <div class="title">Or update wbal and cp from json file</div>          
+        <label title="JSON file with capacity data">
+            <key>Json File:</key>
+            <input id="fileInput" type="file" accept="application/json" size=80/>
+        </label>
+        <hr class="solid">
+        <label title="">
+            <key id="event_or_team"></key>
+            <span class="display-field" id="fetch_descr"></span>
+        </label>           
+        <div class="action-buttons">
+            <div class="std button" id="update_btn" data-action="update">Update</div>
+        </div>
+           
+        <p id="demo">...status...</p>
+        <hr class="solid">
+        <div id="dtable">
+        <table id="table">
+            <thead>
+                <tr>
+                <th >#</th>
+                <th >ZwiftId</th>
+                <th >wPrime</th>
+                <th >CP/FTP</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+        </form>
+        </div>
+       
+    </body>
+</html>
