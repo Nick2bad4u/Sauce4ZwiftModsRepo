@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
 
@@ -53,7 +53,7 @@ jobs:
           # For example: pip install requests
 
       - name: Run Generate Repo File List Action
-        uses: nick2bad4u/generate-repo-file-list@c37173df079f79c55c73a65b9f5c4f79b9f333d4 # main
+        uses: nick2bad4u/generate-repo-file-list@02427b520e81ef4f1e05a8bb8595800598401a0b # main
         with:
           log-level: "INFO"
           directory: "."
@@ -86,7 +86,7 @@ jobs:
           root-margin-mobile: "0px 0px 100px 0px"
 
       - name: Update README.md
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
