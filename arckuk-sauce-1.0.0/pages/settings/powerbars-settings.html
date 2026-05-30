@@ -37,6 +37,11 @@
 					<input type="number" name="fontScale" min="0.5" max="2" step="0.1" style="--size: 5"/>
 				</label>
 				<label>
+					<key>Graph padding:</key>
+					<input type="range" name="graphPadding" min="0.5" max="2" step="0.1"/>
+					<input type="number" name="graphPadding" min="0.5" max="2" step="0.1" style="--size: 5"/>
+				</label>
+				<label>
 					<key>Theme override:</key>
 					<select is="sauce-theme" override></select>
 				</label>
@@ -91,6 +96,10 @@
 				<label title="Show the best power recorded by this mod for you at each duration">
 					<key>Show best power?:</key>
 					<input type="checkbox" name="showBest"/>
+				</label>
+				<label>
+					<key>Show Heart Rate?:</key>
+					<input type="checkbox" name="showHR"/>
 				</label>
 				<label title="Maximum value for y axis (in Watts, WKG are scaled proportionally)"">
 					<key>Max y value (W):</key>

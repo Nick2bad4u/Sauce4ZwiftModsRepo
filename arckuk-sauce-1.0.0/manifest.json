@@ -1,10 +1,10 @@
 {
     "manifest_version": 1,
-    "name": "Arckuk sauce",
-    "description": "Various Sauce mods",
+    "name": "Arckuk",
+    "description": "Various mods to replace and enhance the standard HUD. Power/HR/cadence/draft/gradient and speed/time/distance mods. Also live power curve and power for duration charts.",
     "author": "Nick Keat",
-    "website_url": "",
-    "version": "0.0.2",
+    "website_url": "https://github.com/arckuk/arckuk-sauce",
+    "version": "1.2.0",
     "web_root": "pages",
     "windows": [{
         "file": "pages/event.html",
@@ -86,6 +86,28 @@
         "default_bounds": {
             "width": 0.2,
             "height": 240
+		}
+	},	{
+        "file": "pages/activepup.html",
+        "id": "arckuk-activepup",
+        "name": "Arckuk Active Power Up",
+        "description": "Shows appropriate icon when using a power up (sorry, it can't tell what power up you have when not using it!)",
+        "overlay": true,
+        "frame": false,
+        "default_bounds": {
+            "width": 120,
+            "height": 120
+		}
+	},	{
+        "file": "pages/histogram.html",
+        "id": "arckuk-histogram",
+        "name": "Arckuk Histogram",
+        "description": "Histogram(s) of heart rate, power, cadence etc",
+        "overlay": true,
+        "frame": false,
+        "default_bounds": {
+            "width": 0.2,
+            "height": 0.1
 		}
 	}]
 }

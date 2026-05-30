@@ -19,6 +19,7 @@ let athleteId;
 
 common.settingsStore.setDefault({
 	fontScale: 1,
+	graphPadding: 1,
 	refreshInterval: 1,
 	overlayMode: false,
 	solidBackground: false,
@@ -32,6 +33,7 @@ common.settingsStore.setDefault({
 	show20m: true,
 	showAve: true,
 	showBest: true,
+	showHR: true,
 	best1: 0,
 	best5: 0,
 	best15: 0,
@@ -43,19 +45,20 @@ common.settingsStore.setDefault({
 
 let showWKG = common.settingsStore.get('showWKG');
 const powerDurations = ['5','15','60','300','1200'];
-const powerLabels = ['1 s','5 s','15 s','1 m','5 m','20 m','ave'];
+const powerLabels = ['1s','5s','15s','1m','5m','20m','ave','HR'];
 const showDurations = [];
 const bestPowerTesting = false;
 let bestPower = [common.settingsStore.get('best1'),common.settingsStore.get('best5'),common.settingsStore.get('best15'),common.settingsStore.get('best60'),common.settingsStore.get('best300'),common.settingsStore.get('best1200')];
 //if (bestPowerTesting == true) {	bestPower = [0,0,0,0,0,0] }
 
-let font_base_size = 12
+let font_base_size = 12;
+let paddingBase = 32;
 let chart_options = {
 	grid: {
-		left: '14%',
-		top: '15%',
-		right: '10%',
-		bottom: '15%'
+		left: paddingBase * common.settingsStore.get('graphPadding'),
+		top: paddingBase * common.settingsStore.get('graphPadding'),
+		right: paddingBase * common.settingsStore.get('graphPadding'),
+		bottom: paddingBase * common.settingsStore.get('graphPadding')
 	},
 	textStyle: {
 		fontSize: font_base_size * common.settingsStore.get('fontScale')
@@ -73,18 +76,31 @@ let chart_options = {
 		axisLabel: {
 			color: 'white',
 			show: true,
+			fontSize: font_base_size * common.settingsStore.get('fontScale')
 		},
 	},
-	yAxis: {
+	yAxis: [{
 		axisLabel: {
 			color: 'white',
 			show: true,
+			fontSize: font_base_size * common.settingsStore.get('fontScale')
 		},
 		min: 0,
 		name: (showWKG == false ? "W" : "WKG"),
 		triggerEvent: true,
 		max: Number(common.settingsStore.get('maxy')) == 0 ? null : Number(dividedPower(common.settingsStore.get('maxy'))),
 	},
+	{
+		axisLabel: {
+			color: 'white',
+			fontSize: font_base_size * common.settingsStore.get('fontScale')
+		},
+   		splitLine: { show: false }, 
+		min: 0,
+		name: "HR",
+		position: 'right',
+		show: common.settingsStore.get('showHR')
+	}],
 	series: [
 		
 		{
@@ -95,6 +111,7 @@ let chart_options = {
 			barCategoryGap: '10%',
 			label: {
 				color: 'white',
+				fontSize: font_base_size * common.settingsStore.get('fontScale'),
 				show: true,
 				formatter: (value) => (value.data != 0 ? value.data.toFixed((showWKG == false ? 0 : 2)) : ``),
 				position: 'top',				
@@ -107,6 +124,7 @@ let chart_options = {
 			data: [],
 			label: {
 				color: 'black',
+				fontSize: font_base_size * common.settingsStore.get('fontScale'),
 				show: true,
 				formatter: (value) => (value.data != 0 ? value.data.toFixed((showWKG == false ? 0 : 2)) : ``),
 				position: 'insideTop',				
@@ -121,12 +139,43 @@ let chart_options = {
 			barCategoryGap: '10%',
 			label: {
 				color: 'white',
+				fontSize: font_base_size * common.settingsStore.get('fontScale'),
 				show: false,
 				formatter: (value) => (value.data != 0 ? value.data.toFixed((showWKG == false ? 0 : 2)) : ``),
 				position: 'top',				
 			},
 			z: 10
-		}
+		},
+		{
+			name: 'HR',
+			type: 'bar',
+			data: [],
+			yAxisIndex: 1,
+			show: false,
+			color: '#ff2222',
+			label: {
+				color: 'black',
+				fontSize: font_base_size * common.settingsStore.get('fontScale'),
+				show: true,
+				position: 'insideTop',				
+			},
+			z: 20
+		},
+		{
+			name: 'HR max',
+			type: 'bar',
+			data: [],
+			yAxisIndex: 1,
+			show: false,
+			color: 'darkred',
+			label: {
+				color: 'white',
+				fontSize: font_base_size * common.settingsStore.get('fontScale'),
+				show: true,
+				position: 'top',				
+			},
+			z: 10
+		},
 	]
 };
 
@@ -174,9 +223,35 @@ export async function main() {
 			chart.setOption({
 				textStyle: {
 					fontSize: font_base_size * common.settingsStore.get('fontScale')
+				},
+				xAxis: {
+					axisLabel: {
+						fontSize: font_base_size * common.settingsStore.get('fontScale')
+					}
+				},
+				yAxis: [ 
+					{axisLabel: {fontSize: font_base_size * common.settingsStore.get('fontScale')}},
+					{axisLabel: {fontSize: font_base_size * common.settingsStore.get('fontScale')}}
+				],
+				series: [
+					{label: { fontSize: font_base_size * common.settingsStore.get('fontScale') }},
+					{label: { fontSize: font_base_size * common.settingsStore.get('fontScale') }},
+					{label: { fontSize: font_base_size * common.settingsStore.get('fontScale') }},
+					{label: { fontSize: font_base_size * common.settingsStore.get('fontScale') }},
+					{label: { fontSize: font_base_size * common.settingsStore.get('fontScale') }},
+				]
+			})
+		}
+		if (changed.has('graphPadding')) {
+			chart.setOption({
+				grid: {
+					left: paddingBase * common.settingsStore.get('graphPadding'),
+					top: paddingBase * common.settingsStore.get('graphPadding'),
+					right: paddingBase * common.settingsStore.get('graphPadding'),
+					bottom: paddingBase * common.settingsStore.get('graphPadding')
 				}
 			})
-		} 
+		}
 		if (changed.has('solidBackground') || changed.has('backgroundColor')) {
 			setBackground();
 		}
@@ -185,7 +260,7 @@ export async function main() {
 				{overlay: changed.get('overlayMode')});
 			await common.rpc.reopenWindow(window.electron.context.id);
 		}	
-		if (changed.has('show1s') || changed.has('show5s') || changed.has('show15s') || changed.has('show1m') || changed.has('show5m') || changed.has('show20m') || changed.has('showAve') ) {
+		if (changed.has('show1s') || changed.has('show5s') || changed.has('show15s') || changed.has('show1m') || changed.has('show5m') || changed.has('show20m') || changed.has('showAve') || changed.has('showHR') ) {
 			chart.setOption({
 				textStyle: {
 					fontSize: font_base_size * common.settingsStore.get('fontScale')
@@ -193,6 +268,17 @@ export async function main() {
 				xAxis: {
 					data: getxAxisValues(),
 				}
+			})
+		}
+		if (changed.has('showHR')){
+			chart.setOption({
+				yAxis: [
+					{},
+					{
+						show: common.settingsStore.get('showHR')
+					}
+					
+				]
 			})
 		}
 		if (changed.has('best1') || changed.has('best5') || changed.has('best15') || changed.has('best60') || changed.has('best300') || changed.has('best1200') ) {
@@ -211,10 +297,11 @@ export async function main() {
 		}
 		if (changed.has('maxy')) {
 			chart.setOption({
-				yAxis: {
-					max: Number(common.settingsStore.get('maxy')) == 0 ? null : Number(dividedPower(common.settingsStore.get('maxy')))
-				},
-			
+				yAxis: [{},
+					{
+						max: Number(common.settingsStore.get('maxy')) == 0 ? null : Number(dividedPower(common.settingsStore.get('maxy')))
+					},
+				]
 			});
 		}
 		if (changed.has('refreshInterval')) {
@@ -283,6 +370,8 @@ export async function main() {
 		
 		let curPow =[];
 		let peakPow=[];
+		let HR=[];
+		let HRmax=[];
 		let shownBestPow=[];
 
 		if (watching.state.worldTime >= maxtime + refreshInterval*1000 ) {
@@ -295,12 +384,24 @@ export async function main() {
 			for (let i = powValues; i < peakPow.length; i++) {
 				curPow[i] = null; // zero current Power values where there's no peakPow (where elapsed time is < pow duration)
 			}
+			HR = [null,null,null,null,null,null,null,watching.state.heartrate];
+			HRmax = [null,null,null,null,null,null,null,watching.stats.hr.max];
 
-			let showSeries = [{data: (peakPow.filter((x,i) => showDurations.includes(i))).map(dividedPower)},{data: (curPow.filter((x,i) => showDurations.includes(i))).map(dividedPower)}];
+			let showSeries = [{data: (peakPow.filter((x,i) => showDurations.includes(i))).map(dividedPower)},
+				{data: (curPow.filter((x,i) => showDurations.includes(i))).map(dividedPower)}];
+
 			if ((common.settingsStore.get('showBest') == true) && ( (selfAthleteData.athleteId == watching.athleteId) || (bestPowerTesting == true) ) ) {
 				showSeries.push({data: (bestPower.filter((x,i) => showDurations.includes(i))).map(dividedPower)});
 			} else {
 				showSeries.push({data: []})
+			}
+
+			if ((common.settingsStore.get('showHR') == true) && (HR[7] != 0)) {
+				showSeries.push({data: (HR.filter((x,i) => showDurations.includes(i)))});
+				showSeries.push({data: (HRmax.filter((x,i) => showDurations.includes(i)))});
+			} else {
+				showSeries.push({data: []});
+				showSeries.push({data: []});
 			}
 			chart.setOption({series: showSeries});
 		} else {
@@ -352,6 +453,10 @@ function getxAxisValues() {
 		values.push('ave');
 		showDurations.push(6);
 	};
+	if (common.settingsStore.get('showHR') == true) {
+		values.push('HR');
+		showDurations.push(7);
+	}
 return(values);
 }
 
