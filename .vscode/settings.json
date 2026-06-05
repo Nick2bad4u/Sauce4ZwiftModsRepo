@@ -73,5 +73,9 @@
         "wubble",
         "ztesch",
         "zutano"
-    ]
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "nick2bad4u",
+        "projectKey": "Nick2bad4u_Sauce4ZwiftModsRepo"
+    }
 }
