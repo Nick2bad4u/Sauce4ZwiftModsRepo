@@ -441,7 +441,9 @@ async function getAllSegmentResults(watching, currentEventConfig) {
     const uniqueSegmentIds = getUniqueValues(segmentData, "segmentId")
     let resultsToStore = [];
     for (let segId of uniqueSegmentIds) {
+        const t = Date.now();
         const resultsFull = await common.rpc.getSegmentResults(segId);    
+        console.log(`Segment ${segId} results retrieved in ${Date.now() - t}ms`)
         let eventRes = resultsFull.filter(x => x.ts > eventStartTime);      
         //console.log("Found segment results from full leaderboard", eventRes)     
         if (eventRes.length > 0)  // don't bother getting the full leaderboard if no live results for the event yet
@@ -1218,9 +1220,23 @@ async function updateRacerStatus(states) {
     }
 }
 
-async function getLeaderboard(watching) {
+let _getLeaderboardBusy;
+async function getLeaderboard() {
+    if (_getLeaderboardBusy) {
+        return;
+    }
+    _getLeaderboardBusy = true;
+    try {
+        return await _getLeaderboard.apply(this, arguments);
+    } finally {
+        _getLeaderboardBusy = false;
+    }
+}
+
+
+async function _getLeaderboard(watching) {
     if (watching.state.eventSubgroupId != 0 || lastKnownSG.eventSubgroupId > 0) {        
-        let refreshRate = 20000;
+        let refreshRate = 30000;
         if (watching.segmentData?.routeSegments) {
             const segmentFinishLines = watching.segmentData.routeSegments.filter(segment => segment.name.includes("Finish") && !segment.finishArchOnly);
             if (segmentFinishLines.length > 0) {
