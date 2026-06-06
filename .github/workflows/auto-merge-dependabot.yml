@@ -41,7 +41,7 @@ jobs:
       - name: Enable Auto-Merge
         if: >-
           contains(
-            fromJSON('["version-update:semver-patch","version-update:semver-minor"]'),
+            fromJSON('["version-update:semver-patch","version-update:semver-minor","version-update:semver-patch",]'),
             steps.metadata.outputs.update-type
           )
         shell: bash
