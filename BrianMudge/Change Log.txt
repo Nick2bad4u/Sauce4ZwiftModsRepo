@@ -11,6 +11,12 @@ Planned / ToDo
 	- DS Notes - Check ActiveEvent = null for marking off segments
 
 
+v0.4.1
+	- Common - Added Units setting (Auto / Metric / Imperial). Auto follows Sauce's Units setting.
+	- DS Notes - Distances and auto hide distance follow the Units setting
+	- EFT - Average speed and finish distance follow the Units setting
+	- HUD - Speed and remaining distance follow the Units setting
+
 v0.4.0
 	- DS Notes - Added Custom Segments to "Tropic Rush" route.
 	- DS Notes - Added Custom Segments to "Watts of the Wild" route.
