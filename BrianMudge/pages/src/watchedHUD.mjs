@@ -131,6 +131,7 @@ const getAthleteCategory = (athlete) => {
 }
 
 common.settingsStore.setDefault({
+    units: 'auto',
     fontScale: 1,
     solidBackground: false,
     backgroundColor: '#00ff00',
@@ -362,7 +363,7 @@ function render() {
                 tableInner = tableInner + "<tr id='showRemaining' style='font-weight: bold;'><td style='text-align: center;padding-right: 20px;' title='Distance Remaining'>&#128207;</td><td style='padding-right: 20px;' id='watchedDistanceRemaining'></td></tr>";
                 break;
             case "showSpeed":
-                tableInner = tableInner + "<tr id='showSpeed' style='font-weight: bold;'><td style='text-align: center;padding-right: 20px;' title='Speed'>&#128359;</td><td style='padding-right: 20px;' id='watchedSpeed'>kph</td></tr>";
+                tableInner = tableInner + "<tr id='showSpeed' style='font-weight: bold;'><td style='text-align: center;padding-right: 20px;' title='Speed'>&#128359;</td><td style='padding-right: 20px;' id='watchedSpeed'>" + BMcommon.speedUnit() + "</td></tr>";
                 break;
             case "showCadence":
                 tableInner = tableInner + "<tr id='showCadence' style='font-weight: bold;'><td style='text-align: center;padding-right: 20px;' title='Cadence'>&#8635;</td><td style='padding-right: 20px;' id='watchedCadence'>rpm</td></tr>";

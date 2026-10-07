@@ -140,6 +140,7 @@ const getAthleteCategory = (athlete) => {
 }
 
 common.settingsStore.setDefault({
+    units: 'auto',
     fontScale: 1,
     solidBackground: false,
     backgroundColor: '#00ff00',
@@ -403,9 +404,9 @@ let routeSegments = segmentData.segments.routeSegments;
             } else {
                 innerHTML = innerHTML + "<td data-id='segName'>" + segment.name + "</td>";
             }
-            innerHTML = innerHTML + "<td data-id='segStart' align='right'>" + segStart.toFixed(2) + "<abbr>km</abbr></td>";
-            innerHTML = innerHTML + "<td data-id='segLength' align='right'>" + segLength.toFixed(2) + "<abbr>km</abbr></td>";
-            innerHTML = innerHTML + "<td data-id='segEnd' align='right'>" + segEnd.toFixed(2) + "<abbr>km</abbr></td>";
+            innerHTML = innerHTML + "<td data-id='segStart' align='right'>" + BMcommon.convertDistance(segStart).toFixed(2) + "<abbr>" + BMcommon.distanceUnit() + "</abbr></td>";
+            innerHTML = innerHTML + "<td data-id='segLength' align='right'>" + BMcommon.convertDistance(segLength).toFixed(2) + "<abbr>" + BMcommon.distanceUnit() + "</abbr></td>";
+            innerHTML = innerHTML + "<td data-id='segEnd' align='right'>" + BMcommon.convertDistance(segEnd).toFixed(2) + "<abbr>" + BMcommon.distanceUnit() + "</abbr></td>";
             innerHTML = innerHTML + "<td data-id='segAvgGrade' align='right'>" + segAvgGrade + "</td>";
             innerHTML = innerHTML + "<td data-id='segMaxGrade' align='right'>" + segMaxGrade + "</td>";
             if (showNotesSegments) innerHTML = innerHTML + "<td data-id='segMNotes' align='left'>" + segNotes + "</td>";
@@ -795,14 +796,14 @@ async function updateMarkedRiderInfo(nearby) {
             if (onSegment.length > 0){
                 console.log("onSegment:", onSegment[0]);
                 let endDist = onSegment[0].end /1000;
-                segmentMessage="'" + onSegment[0].name + "' ends at " + endDist.toFixed(2) + "km";
+                segmentMessage="'" + onSegment[0].name + "' ends at " + BMcommon.formatDistance(endDist);
                 riderSegmentNote=onSegment[0].comments;
             } else {
                 let nextSegment = routeSegments.filter(n => riderDistance < n.start && riderDistance < n.end);
                 if (nextSegment.length > 0) {
                     console.log("nextSegment:", nextSegment[0]);
                     let startDist = nextSegment[0].start /1000;
-                    segmentMessage ="'" + nextSegment[0].name + "' starts at " + startDist.toFixed(2) + "km";
+                    segmentMessage ="'" + nextSegment[0].name + "' starts at " + BMcommon.formatDistance(startDist);
                     riderSegmentNote = nextSegment[0].comments;
                 }
             }
@@ -813,7 +814,7 @@ async function updateMarkedRiderInfo(nearby) {
 //        }
         innerHTML = innerHTML + "<tr data-id='" + rider.athleteId + "' class>";
         innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "'" + riderWatchedColour + ">" + rider.athlete.sanitizedFullname + "</td>";
-        innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' align='right'>" + displayRiderDistance.toFixed(2) + "<abbr>km</abbr></td>";
+        innerHTML = innerHTML + "<td data-id='" + rider.athleteId + "' align='right'>" + BMcommon.convertDistance(displayRiderDistance).toFixed(2) + "<abbr>" + BMcommon.distanceUnit() + "</abbr></td>";
         if (show20MinPower) {
             if (rider.stats.power.peaks[300].avg != null ) {
                 rider5MinWkgValue = rider.stats.power.peaks[300].avg / rider.athlete.weight;

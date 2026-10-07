@@ -133,6 +133,38 @@ export function getRouteName(rider) {
     
 }
 
+// Units: per-window 'units' setting = 'auto' (follow Sauce's global imperial setting), 'metric' or 'imperial'
+const milesPerKm = 0.621371;
+
+export function isImperial() {
+    const units = common.settingsStore && common.settingsStore.get('units');
+    if (units == 'imperial') return true;
+    if (units == 'metric') return false;
+    return !!common.imperialUnits;
+}
+
+export function distanceUnit() {
+    return isImperial() ? "mi" : "km";
+}
+
+export function speedUnit() {
+    return isImperial() ? "mph" : "kph";
+}
+
+// km -> km or miles
+export function convertDistance(km) {
+    return isImperial() ? km * milesPerKm : km;
+}
+
+// kph -> kph or mph
+export function convertSpeed(kph) {
+    return isImperial() ? kph * milesPerKm : kph;
+}
+
+export function formatDistance(km, digits = 2) {
+    return convertDistance(km).toFixed(digits) + distanceUnit();
+}
+
 export function getRemainingHTML(rider,route) {
     let percentCalculation = common.settingsStore.get('percentCalculation');
     let riderRemainingColour = " style='color: white; background-color:transparent;'";
@@ -149,7 +181,7 @@ export function getRemainingHTML(rider,route) {
             watchRemainingTitle = "% complete";
             watchRemainingPercent = (((rider.segmentData.currentPosition) / activeEvent.routeDistance) * 100);
         }
-        return "<span title='Remaining Distance'" + riderRemainingColour + ">" +  watchRemainingKM.toFixed(2) + "km</span><span title='" + watchRemainingTitle + "' " + riderRemainingColour + "> (" + watchRemainingPercent.toFixed(1) + "%)</span>";
+        return "<span title='Remaining Distance'" + riderRemainingColour + ">" +  formatDistance(watchRemainingKM) + "</span><span title='" + watchRemainingTitle + "' " + riderRemainingColour + "> (" + watchRemainingPercent.toFixed(1) + "%)</span>";
     } else if (rider.remaining != null && activeEvent != null) {
         let watchRemainingKM = rider.remaining/1000;
         if (percentCalculation == "Remaining") {
@@ -157,7 +189,7 @@ export function getRemainingHTML(rider,route) {
         } else {
             watchRemainingPercent = (((rider.segmentData.currentPosition) / activeEvent.routeDistance) * 100);
         }
-        return "<span title='Remaining Distance'" + riderRemainingColour + ">" +  watchRemainingKM.toFixed(2) + "km (" + watchRemainingPercent.toFixed(1) + "%)</span>";
+        return "<span title='Remaining Distance'" + riderRemainingColour + ">" +  formatDistance(watchRemainingKM) + " (" + watchRemainingPercent.toFixed(1) + "%)</span>";
     } else if (rider.remainingMetric == "distance" && rider.remainingType == "route") { // FreeRide
         let totalDistance = route.distanceInMeters;
         console.log("totalDistance", totalDistance);
@@ -168,7 +200,7 @@ export function getRemainingHTML(rider,route) {
         } else {
             watchRemainingPercent = (((rider.segmentData.currentPosition) / route.distanceInMeters) * 100);
         }
-        return "<span title='Remaining Distance'" + riderRemainingColour + ">" +  watchRemainingKM.toFixed(2) + "km (" + watchRemainingPercent.toFixed(1) + "%)</span>";
+        return "<span title='Remaining Distance'" + riderRemainingColour + ">" +  formatDistance(watchRemainingKM) + " (" + watchRemainingPercent.toFixed(1) + "%)</span>";
     } else {
         return "";
     }
@@ -306,7 +338,7 @@ export function getSpeedHTML(rider) {
     if (rider.stats.speed.avg != null) {
         riderSpeedAverage = rider.stats.speed.avg;
     }
-    return "<span title='Current'" + riderSpeedColour + ">" + riderSpeedCurrent.toFixed(1) + keyC + "</span> / <span title='Average'" + riderSpeedColour + ">" + riderSpeedAverage.toFixed(1) + keyA + " kph</span>";
+    return "<span title='Current'" + riderSpeedColour + ">" + convertSpeed(riderSpeedCurrent).toFixed(1) + keyC + "</span> / <span title='Average'" + riderSpeedColour + ">" + convertSpeed(riderSpeedAverage).toFixed(1) + keyA + " " + speedUnit() + "</span>";
 }
 
 export function getCadenceHTML(info) {

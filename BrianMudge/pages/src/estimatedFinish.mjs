@@ -133,6 +133,7 @@ if (targetTime == "") {
 }
 
 common.settingsStore.setDefault({
+    units: 'auto',
     fontScale: 1,
     solidBackground: false,
     backgroundColor: '#00ff00'
@@ -539,7 +540,7 @@ async function updateRiderInfo(nearby) {
         state.watchPercentDistance = watchEventDistance / event.totalDistance;
     }
     state.watchPercentAscent = watchRiderAscent / event.totalAscent;
-    document.getElementsByName("watchAvgSpeed")[0].innerHTML = parseFloat(watchAvgSpeed).toFixed(2);
+    document.getElementsByName("watchAvgSpeed")[0].innerHTML = BMcommon.convertSpeed(parseFloat(watchAvgSpeed)).toFixed(2) + " " + BMcommon.speedUnit();
     
     if (state.remainingMetric == "distance") {
         document.getElementById("watchFinishTimeKey").innerHTML = elementTitles.watchFinishTimeKey;
@@ -559,7 +560,7 @@ async function updateRiderInfo(nearby) {
         document.getElementsByName("watchRemainingMMSS")[0].innerHTML = state.watchRemainingTime;
         document.getElementsByName("watchRemainingMMSS")[0].style.color = "White";
         document.getElementsByName("watchRemainingMMSS")[0].style.fontWeight = "Normal";
-        document.getElementsByName("watchEstimatedFinishTime")[0].innerHTML = ((watchingRider.state.distance / 1000) + state.watchRemainingDistance).toFixed(2);
+        document.getElementsByName("watchEstimatedFinishTime")[0].innerHTML = BMcommon.formatDistance((watchingRider.state.distance / 1000) + state.watchRemainingDistance);
         document.getElementsByName("watchEstimatedFinishTime")[0].style.color = "White";
         document.getElementsByName("watchEstimatedFinishTime")[0].style.fontWeight = "Normal";
         clearFirstRider(true);
@@ -690,7 +691,7 @@ async function updateRiderInfo(nearby) {
                 var firstRiderName = firstRider.athlete.sanitizedFullname;
                 document.getElementsByName("firstRiderName")[0].innerHTML = firstRiderName;
                 state.firstAvgSpeed = firstRider.stats.speed.avg;
-                document.getElementsByName("firstAvgSpeed")[0].innerHTML = parseFloat(state.firstAvgSpeed).toFixed(2);
+                document.getElementsByName("firstAvgSpeed")[0].innerHTML = BMcommon.convertSpeed(parseFloat(state.firstAvgSpeed)).toFixed(2) + " " + BMcommon.speedUnit();
                 firstElapsedMinutes = firstRider.state.time / 60;
                 firstEventDistance = firstRider.state.eventDistance;
             }
